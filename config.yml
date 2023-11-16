@@ -1,0 +1,5 @@
+servers:
+  test1:
+    host: test.imap.com
+    username: user
+    password: mysupersecretpassw0rd
