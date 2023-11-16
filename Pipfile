@@ -4,6 +4,9 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pyyaml="6.0.*"
+dacite = "*"
+imapclient = "*"
 
 [dev-packages]
 
