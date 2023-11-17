@@ -11,11 +11,14 @@ class ImapDumper:
     _client: IMAPClient
     _folder: str = None
     _logger: logging.Logger
-
+    
+    _ignored_folders: list[str]
     def __init__(self, config: ImapConfig, name: str, dump_folder: str) -> None:
         self._client = IMAPClient(
             host=config.host, port=config.port, use_uid=True, ssl=config.ssl
         )
+        
+        self._ignored_folders = config.ignored
 
         self._folder = os.path.join(dump_folder, name)
 
@@ -33,17 +36,32 @@ class ImapDumper:
         self._set_idle(False)
 
         messages_in_account = {}
-
-        # iterate over all folders in IMAP account
-        for flags, delim, name in self._client.list_folders():
+        
+        # get all folders in IMAP account
+        folders = self._client.list_folders()
+        folder_names = []
+        
+        # filter folders based on ignored folder settings
+        for flags, delim, name in folders:
             self._logger.debug(f"{flags=}, {delim=}, {name=}")
+            
+            stripped_name = name.split(delim.decode())[-1]
+            
+            if stripped_name in self._ignored_folders or name in self._ignored_folders:
+                self._logger.info(f"Skipping ignored directory '{name}'")
+                continue
+            
+            folder_names.append(name)
 
+        # iterate over the remaining folders
+        for name in folder_names:
             # select folder to be examined
             self._client.select_folder(name, readonly=True)
 
             msg_ids = self._client.search()
 
             if len(msg_ids) <= 0:
+                self._logger.info(f"Skipping empty directory '{name}'")
                 continue
 
             messages_in_directory = {}
