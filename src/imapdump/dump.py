@@ -51,7 +51,6 @@ def main():
         logger.info("Got KeyboardInterrupt")
     except Exception as e:
         logger.exception("Exception encountered")
-        raise
     finally:
         logger.info("Shutting down")
 
