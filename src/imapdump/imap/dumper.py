@@ -80,6 +80,8 @@ class ImapDumper:
         num_skipped = 0
         num_all = 0
 
+        self._logger.info(f"Dumping to '{self._folder}'")
+
         for subfolder, messages in messages.items():
             assert isinstance(messages, dict)
 
