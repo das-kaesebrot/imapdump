@@ -1,0 +1,4 @@
+-i https://pypi.org/simple
+dacite==1.8.1; python_version >= '3.6'
+imapclient==3.0.0; python_full_version >= '3.7.0'
+pyyaml==6.0.1; python_version >= '3.6'
