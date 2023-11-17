@@ -13,6 +13,9 @@ class ImapDumper:
     _logger: logging.Logger
     
     _ignored_folders: list[str]
+
+    CHUNKSIZE: int = 1000
+
     def __init__(self, config: ImapConfig, name: str, dump_folder: str) -> None:
         self._client = IMAPClient(
             host=config.host, port=config.port, use_uid=True, ssl=config.ssl
@@ -66,27 +69,44 @@ class ImapDumper:
 
             messages_in_directory = {}
 
-            # Get envelope info and entire message (RFC822)
-            for msgid, data in self._client.fetch(
-                messages=msg_ids, data=["RFC822", "ENVELOPE"]
-            ).items():
-                envelope = data.get(b"ENVELOPE")
-                rfc822 = data.get(b"RFC822")
-
-                # sanity check
-                assert isinstance(envelope, Envelope)
-
-                msg_filename = f"{envelope_to_msg_title(envelope)}.eml"
-
-                # add message to folder specific dict using generated title as key
-                messages_in_directory[msg_filename] = rfc822
+            chunks, remainder = divmod(len(msg_ids), self.CHUNKSIZE)
 
             self._logger.info(
-                f"Found {len(messages_in_directory.keys())} messages in directory '{name}'"
+                f"Processing {len(msg_ids)} messages in directory '{name}'"
             )
 
-            # add message title/message content dict as directory dict entry
-            messages_in_account[name] = messages_in_directory
+            if remainder != 0:
+                chunks += 1
+
+            for chunk in range(chunks):
+                start = chunk * self.CHUNKSIZE
+                end = min((chunk + 1) * self.CHUNKSIZE, len(msg_ids))
+
+                ids = msg_ids[start:end]
+                
+                percentage = (end / len(msg_ids)) * 100
+
+                # Get envelope info and entire message (RFC822)
+                for msgid, data in self._client.fetch(
+                    messages=ids, data=["RFC822", "ENVELOPE"]
+                ).items():
+                    envelope = data.get(b"ENVELOPE")
+                    rfc822 = data.get(b"RFC822")
+
+                    # sanity check
+                    assert isinstance(envelope, Envelope)
+
+                    msg_filename = f"{envelope_to_msg_title(envelope)}.eml"
+
+                    # add message to folder specific dict using generated title as key
+                    messages_in_directory[msg_filename] = rfc822
+
+                # add message title/message content dict as directory dict entry
+                messages_in_account[name] = messages_in_directory
+                
+                self._logger.info(
+                    f"'{name}' progress: {percentage:.2f}%"
+                )
 
         # back to idling
         self._set_idle(True)
