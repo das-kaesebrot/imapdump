@@ -16,7 +16,7 @@ class ConfigHandler:
     config: Config
     
     def __init__(self):
-        self._logger = logging.getLogger("confighandler")
+        self._logger = logging.getLogger("config.handler")
         self._load_config()
     
     def _load_config(self) -> None:
