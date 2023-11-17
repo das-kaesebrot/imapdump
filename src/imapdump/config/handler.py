@@ -48,6 +48,9 @@ class ConfigHandler:
 
         self.config = Config()
 
+        if "dump_folder" in self._raw_config.keys():
+            self.config.dump_folder = self._raw_config.get("dump_folder")
+
         try:
             for key, value in self._raw_config.get(self.ROOT_KEY, {}).items():
                 self.config.servers[key] = dacite.from_dict(

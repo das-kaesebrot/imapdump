@@ -8,6 +8,8 @@ Edit the default `config.yml`.
 
 Example configuration:
 ```yaml
+dump_folder: /path/to/dump/folder
+
 servers:
   # A unique key for your imap server config.
   myhost:
