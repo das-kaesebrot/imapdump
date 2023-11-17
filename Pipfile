@@ -5,10 +5,11 @@ name = "pypi"
 
 [packages]
 pyyaml="6.0.*"
-dacite = "*"
-imapclient = "*"
+dacite = "1.8.*"
+imapclient = "3.0.*"
 
 [dev-packages]
+pip-licenses = "4.3.*"
 
 [requires]
 python_version = "3.11"
