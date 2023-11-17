@@ -41,7 +41,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: ${{ vars.DOCKERHUB_IMAGENAME }}
           github-token: ${{ github.token }}
 
       - name: Build and push Docker image
