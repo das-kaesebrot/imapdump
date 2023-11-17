@@ -3,7 +3,8 @@ from dataclasses import dataclass, field
 
 from ..config.imap_config import ImapConfig
 
+
 @dataclass
-class Config:    
+class Config:
     servers: Dict[str, ImapConfig] = field(default_factory=dict)
     dump_folder: str = "dump"
