@@ -28,6 +28,12 @@ def main():
 
     args = parser.parse_args()
 
+    # override command line args with environment args retrieved from IMAPDUMP_FLAGS var
+    # a bit hacky, but it works
+    if "IMAPDUMP_FLAGS" in os.environ:
+        env_args = os.environ["IMAPDUMP_FLAGS"].split()
+        args = parser.parse_args(env_args)
+
     logging.basicConfig(
         format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
         level=args.loglevel.upper(),
