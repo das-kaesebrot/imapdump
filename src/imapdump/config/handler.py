@@ -9,7 +9,7 @@ from .config import Config
 
 
 class ConfigHandler:
-    CONFIG_PATH: str = "config.yml"
+    CONFIG_PATH: str = "config/config.yml"
     ROOT_KEY: str = "servers"
     _logger: logging.Logger
     _raw_config: dict = {}
