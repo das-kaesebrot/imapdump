@@ -13,7 +13,9 @@ def main():
     available_levels.remove(logging.getLevelName(logging.NOTSET).lower())
     available_levels.remove(logging.getLevelName(logging.WARNING).lower())
 
-    parser = argparse.ArgumentParser(description="Process some integers.")
+    parser = argparse.ArgumentParser(
+        description="Dump IMAP accounts to a local directory"
+    )
     parser.add_argument(
         "-l",
         "--logging",
