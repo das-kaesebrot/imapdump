@@ -27,6 +27,8 @@ class ImapDumper:
 
         self._logger = logging.getLogger(f"dumper.{name}")
 
+        self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
+
         self._client.login(config.username, config.password)
         self._set_idle(True)
 
