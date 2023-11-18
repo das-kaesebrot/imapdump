@@ -74,7 +74,7 @@ class ImapDumper:
             chunks, remainder = divmod(len(msg_ids), self.CHUNKSIZE)
 
             self._logger.info(
-                f"Processing {len(msg_ids)} messages in directory '{name}'"
+                f"Processing {len(msg_ids)} message(s) in directory '{name}'"
             )
 
             if remainder != 0:
@@ -112,6 +112,8 @@ class ImapDumper:
 
         # back to idling
         self._set_idle(True)
+
+        self._logger.info(f"Found {len(messages_in_account.keys())} message(s) to dump")
 
         return messages_in_account
 
@@ -162,7 +164,7 @@ class ImapDumper:
             filename for filename in files_in_directory if filename not in allowed_files
         ]
 
-        self._logger.debug(f"Found {len(leftovers)} items not in backup")
+        self._logger.debug(f"Found {len(leftovers)} item(s) not in backup")
 
         for filename in leftovers:
             filename = os.path.join(folder, filename)
