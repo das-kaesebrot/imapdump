@@ -28,12 +28,17 @@ def envelope_to_msg_title(envelope: Envelope) -> str:
 
 
 def addr_to_str(addresses: tuple[Address]) -> str:
-    if len(addresses) <= 0:
+    if not addresses or len(addresses) <= 0:
         return None
 
     addr = addresses[0]
+    addr_str = ""
 
-    addr_str = f"{addr.mailbox.decode()}@{addr.host.decode()}"
+    if addr.mailbox:
+        addr_str += addr.mailbox.decode()
+
+    if addr.host:
+        addr_str += f"@{addr.host.decode()}"
 
     if addr.name:
         addr_str = f"{addr.name.decode()} <{addr_str}>"
