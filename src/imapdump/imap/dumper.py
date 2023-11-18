@@ -88,6 +88,7 @@ class ImapDumper:
 
                 percentage = (end / len(msg_ids)) * 100
 
+                # TODO don't retrieve entire message at first, only the size. Then compare to files already dumped and retrieve the full message as necessary.
                 # Get envelope info and entire message (RFC822)
                 for msgid, data in self._client.fetch(
                     messages=ids, data=["RFC822", "ENVELOPE"]
