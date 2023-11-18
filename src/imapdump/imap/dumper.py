@@ -11,7 +11,7 @@ class ImapDumper:
     _client: IMAPClient
     _folder: str = None
     _logger: logging.Logger
-    
+
     _ignored_folders: list[str]
 
     CHUNKSIZE: int = 1000
@@ -20,7 +20,7 @@ class ImapDumper:
         self._client = IMAPClient(
             host=config.host, port=config.port, use_uid=True, ssl=config.ssl
         )
-        
+
         self._ignored_folders = config.ignored
 
         self._folder = os.path.join(dump_folder, name)
@@ -41,21 +41,21 @@ class ImapDumper:
         self._set_idle(False)
 
         messages_in_account = {}
-        
+
         # get all folders in IMAP account
         folders = self._client.list_folders()
         folder_names = []
-        
+
         # filter folders based on ignored folder settings
         for flags, delim, name in folders:
             self._logger.debug(f"{flags=}, {delim=}, {name=}")
-            
+
             stripped_name = name.split(delim.decode())[-1]
-            
+
             if stripped_name in self._ignored_folders or name in self._ignored_folders:
                 self._logger.info(f"Skipping ignored directory '{name}'")
                 continue
-            
+
             folder_names.append(name)
 
         # iterate over the remaining folders
@@ -85,7 +85,7 @@ class ImapDumper:
                 end = min((chunk + 1) * self.CHUNKSIZE, len(msg_ids))
 
                 ids = msg_ids[start:end]
-                
+
                 percentage = (end / len(msg_ids)) * 100
 
                 # Get envelope info and entire message (RFC822)
