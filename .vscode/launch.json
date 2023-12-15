@@ -5,12 +5,40 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Module",
-            "type": "python",
+            "type": "lldb",
             "request": "launch",
-            "module": "src.imapdump.dump",
-            "args": ["-l", "debug"],
-            "justMyCode": true
+            "name": "Debug executable 'imapdump'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=imapdump",
+                    "--package=imapdump"
+                ],
+                "filter": {
+                    "name": "imapdump",
+                    "kind": "bin"
+                }
+            },
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'imapdump'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=imapdump",
+                    "--package=imapdump"
+                ],
+                "filter": {
+                    "name": "imapdump",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
         }
     ]
 }
