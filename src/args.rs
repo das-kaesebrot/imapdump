@@ -19,5 +19,9 @@ pub(crate) mod args {
         // Password for logging into the IMAP server
         #[arg(short = 'P', long)]
         pub password: String,
+
+        // Folder to dump into
+        #[arg(short, long)]
+        pub folder: String,
     }
 }
