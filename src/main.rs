@@ -12,6 +12,6 @@ fn main() {
     let args = ImapDumpArgs::parse();
 
     let mut session = imapclient::get_client(args.host, args.port, args.username, args.password).unwrap();
-    let result = imapclient::fetch_all_messages(&mut session);
-    _ = imapclient::logout_client(session).expect("Logout should succeed")
+    let result = imapclient::fetch_and_write_messages(&mut session);
+    _ = imapclient::logout_client(session).unwrap()
 }

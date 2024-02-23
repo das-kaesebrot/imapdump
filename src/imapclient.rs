@@ -48,10 +48,10 @@ pub fn fetch_all_messages(
 
         session
             .select(folder.name())
-            .expect("Selection of mailbox shouldn't fail");
+            .unwrap();
         let messages = session
             .search("ALL")
-            .expect("Searching messages shouldn't fail");
+            .unwrap();
 
         if messages.is_empty() {
             log::info!("Skipping empty directory '{}'", folder.name());
@@ -72,7 +72,7 @@ pub fn fetch_all_messages(
 
         session
             .select(folder_name)
-            .expect("Selection of mailbox shouldn't fail");
+            .unwrap();
 
         let result = session
             .fetch(
