@@ -6,7 +6,7 @@ use imap_proto::types::Envelope;
 extern crate imap;
 extern crate native_tls;
 
-pub fn get_client(
+pub async fn get_client(
     host: String,
     port: u16,
     username: String,
@@ -24,13 +24,13 @@ pub fn get_client(
     client.login(username, password)
 }
 
-pub fn logout_client(
+pub async fn logout_client(
     mut session: imap::Session<native_tls::TlsStream<std::net::TcpStream>>,
 ) -> Result<(), imap::Error> {
     session.logout()
 }
 
-pub fn fetch_all_messages(
+pub async fn fetch_all_messages(
     session: &mut imap::Session<native_tls::TlsStream<std::net::TcpStream>>,
 ) -> imap::error::Result<Option<String>> {
     // Fetch all folders first

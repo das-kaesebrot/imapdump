@@ -5,13 +5,13 @@ use simple_logger::SimpleLogger;
 mod imapclient;
 mod args;
 
-
-fn main() {
+#[tokio::main]
+async fn main() {
     SimpleLogger::new().init().unwrap();
 
     let args = ImapDumpArgs::parse();
 
-    let mut session = imapclient::get_client(args.host, args.port, args.username, args.password).unwrap();
-    let result = imapclient::fetch_and_write_messages(&mut session);
-    _ = imapclient::logout_client(session).unwrap()
+    let mut session = imapclient::get_client(args.host, args.port, args.username, args.password).await.unwrap();
+    let result = imapclient::fetch_all_messages(&mut session).await;
+    _ = imapclient::logout_client(session).await.unwrap()
 }
