@@ -7,7 +7,7 @@ pub(crate) mod args {
         // Host to use
         #[arg(short = 'H', long)]
         pub host: String,
-    
+
         // IMAP port to use
         #[arg(short, long, default_value_t = 993)]
         pub port: u16,
@@ -15,7 +15,7 @@ pub(crate) mod args {
         // Username for logging into the IMAP server
         #[arg(short, long)]
         pub username: String,
-        
+
         // Password for logging into the IMAP server
         #[arg(short = 'P', long)]
         pub password: String,
