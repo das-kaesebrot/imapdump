@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use imap::Session;
-use imap_proto::types::Envelope;
+use sha2::{Digest, Sha256};
 
 extern crate imap;
 extern crate native_tls;
@@ -46,12 +46,8 @@ pub async fn fetch_all_messages(
             folder.name()
         );
 
-        session
-            .select(folder.name())
-            .unwrap();
-        let messages = session
-            .search("ALL")
-            .unwrap();
+        session.select(folder.name()).unwrap();
+        let messages = session.uid_search("ALL").unwrap();
 
         if messages.is_empty() {
             log::info!("Skipping empty directory '{}'", folder.name());
@@ -61,7 +57,7 @@ pub async fn fetch_all_messages(
         message_ids_per_folder.insert(folder.name(), messages);
     }
 
-    let mut messages_per_folder: HashMap<&str, Vec<Envelope<'_>>> = HashMap::new();
+    let mut hash_per_message_id: HashMap<Vec<u8>, Vec<u8>> = HashMap::new();
 
     for (folder_name, messages) in message_ids_per_folder.iter() {
         log::info!(
@@ -70,12 +66,10 @@ pub async fn fetch_all_messages(
             folder_name
         );
 
-        session
-            .select(folder_name)
-            .unwrap();
+        session.select(folder_name).unwrap();
 
         let result = session
-            .fetch(
+            .uid_fetch(
                 messages
                     .iter()
                     .map(|f| f.to_string())
@@ -83,16 +77,22 @@ pub async fn fetch_all_messages(
                     .join(","),
                 "FAST",
             )
-            .expect("");
+            .unwrap();
 
-        messages_per_folder.insert(
-            folder_name.clone(),
-            result
-                .into_iter()
-                .map(|s| s.envelope().expect("Envelope should be returned"))
-                .collect()
-                //.collect::<Vec<Envelope<'_>>>()
-        );
+        for fetch_result in &result[..] {
+            let result = fetch_result.clone().envelope().unwrap();
+            let date = result.date.unwrap();
+            let message_id = result.message_id.unwrap();
+
+            let hasher = Sha256::new();
+            let generated_hash = hasher
+                .chain_update(date)
+                .chain_update(message_id)
+                .finalize()
+                .to_vec();
+
+            hash_per_message_id.insert(message_id.to_vec(), generated_hash);
+        }
     }
 
     Ok(None)
