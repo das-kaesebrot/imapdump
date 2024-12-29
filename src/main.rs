@@ -2,8 +2,8 @@ use crate::args::args::ImapDumpArgs;
 use clap::Parser;
 use simple_logger::SimpleLogger;
 
-mod imapclient;
 mod args;
+mod imapclient;
 
 #[tokio::main]
 async fn main() {
@@ -11,7 +11,9 @@ async fn main() {
 
     let args = ImapDumpArgs::parse();
 
-    let mut session = imapclient::get_client(args.host, args.port, args.username, args.password).await.unwrap();
+    let mut session = imapclient::get_client(args.host, args.port, args.username, args.password)
+        .await
+        .unwrap();
     let result = imapclient::fetch_all_messages(&mut session).await;
     _ = imapclient::logout_client(session).await.unwrap()
 }
