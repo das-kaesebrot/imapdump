@@ -14,6 +14,6 @@ async fn main() {
     let mut session = imapclient::get_client(args.host, args.port, args.username, args.password)
         .await
         .unwrap();
-    let result = imapclient::fetch_all_messages(&mut session).await;
+    let result = imapclient::get_message_hashes(&mut session);
     _ = imapclient::logout_client(session).await.unwrap()
 }

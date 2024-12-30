@@ -30,70 +30,84 @@ pub async fn logout_client(
     session.logout()
 }
 
-pub async fn fetch_all_messages(
+pub fn get_message_hashes(
     session: &mut imap::Session<native_tls::TlsStream<std::net::TcpStream>>,
-) -> imap::error::Result<Option<String>> {
-    // Fetch all folders first
-    let folders = session.list(Some(""), Some("*"))?;
-
-    let mut message_ids_per_folder: HashMap<&str, HashSet<u32>> = HashMap::new();
-
-    // Iterate over the folders and print their names
-    for folder in folders.iter() {
-        log::debug!(
-            "delim='{}', name='{}'",
-            folder.delimiter().unwrap_or_default(),
-            folder.name()
-        );
-
-        session.select(folder.name()).unwrap();
-        let messages = session.uid_search("ALL").unwrap();
-
-        if messages.is_empty() {
-            log::info!("Skipping empty directory '{}'", folder.name());
-            continue;
-        }
-
-        message_ids_per_folder.insert(folder.name(), messages);
-    }
-
+) -> Option<HashMap<Vec<u8>, Vec<u8>>> {
     let mut hash_per_message_id: HashMap<Vec<u8>, Vec<u8>> = HashMap::new();
 
-    for (folder_name, messages) in message_ids_per_folder.iter() {
-        log::info!(
-            "Processing {} message(s) in directory '{}'",
-            messages.len(),
-            folder_name
-        );
+    // Fetch all folders
+    match session.list(Some(""), Some("*")) {
+        Ok(folders) => {
+            // Iterate over the folders and retrieve the message ids inside
+            for folder in folders.iter() {
+                log::debug!(
+                    "delim='{}', name='{}'",
+                    folder.delimiter().unwrap_or_default(),
+                    folder.name()
+                );                
 
-        session.select(folder_name).unwrap();
+                match session.select(folder.name()) {
+                    Ok(_) => log::debug!("Selected folder '{}'", folder.name()),
+                    Err(e) => {
+                        log::error!("Error selecting folder: {}", e);
+                        continue;
+                    }
+                }
 
-        let result = session
-            .uid_fetch(
-                messages
-                    .iter()
-                    .map(|f| f.to_string())
-                    .collect::<Vec<String>>()
-                    .join(","),
-                "FAST",
-            )
-            .unwrap();
+                let messages = session.uid_search("ALL").unwrap();
 
-        for fetch_result in &result[..] {
-            let result = fetch_result.clone().envelope().unwrap();
-            let date = result.date.unwrap();
-            let message_id = result.message_id.unwrap();
+                if messages.is_empty() {
+                    log::info!("Skipping empty directory '{}'", folder.name());
+                    continue;
+                }
 
-            let hasher = Sha256::new();
-            let generated_hash = hasher
-                .chain_update(date)
-                .chain_update(message_id)
-                .finalize()
-                .to_vec();
+                log::info!(
+                    "Processing {} message(s) in folder '{}'",
+                    messages.len(),
+                    folder.name()
+                );
 
-            hash_per_message_id.insert(message_id.to_vec(), generated_hash);
+                let message_envelopes = session
+                    .uid_fetch(
+                        messages
+                            .iter()
+                            .map(|f| f.to_string())
+                            .collect::<Vec<String>>()
+                            .join(","),
+                        "FAST",
+                    )
+                    .unwrap();
+
+                // get the messages in each folder and generate a hash value from them
+                for fetch_result in message_envelopes.iter() {
+                    let result = fetch_result.envelope();
+
+                    if result.is_none() {
+                        log::warn!("Message envelope is None!");
+                        continue;
+                    }
+
+                    let message = result.unwrap();
+
+                    let date = message.date.unwrap();
+                    let message_id = message.message_id.unwrap();
+
+                    let hasher = Sha256::new();
+                    let generated_hash = hasher
+                        .chain_update(date)
+                        .chain_update(message_id)
+                        .finalize()
+                        .to_vec();
+
+                    hash_per_message_id.insert(message_id.to_vec(), generated_hash);
+                }
+            }
         }
-    }
+        Err(e) => {
+            log::error!("Error fetching folders: {}", e);
+            return None;
+        }
+    };
 
-    Ok(None)
+    Some(hash_per_message_id)
 }
