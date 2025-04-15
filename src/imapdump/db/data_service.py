@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import URL, create_engine, Engine
+from sqlalchemy import URL, create_engine, Engine, select
 from sqlalchemy.orm import Session
 
 from ..models.mail import Base, Mail
@@ -26,9 +26,28 @@ class DataService:
     def __del__(self):
         self._logger.info("Shutting down")
         self.__session.close()
+        
+    def get_mail_by_uid(self, uid) -> Mail | None:
+        select_statement = select(Mail).where(Mail.uid.is_(uid))
+
+        return self.__session.scalars(select_statement).one_or_none()
+    
 
     def save_and_commit(self, object):
+        self.save(object)
+        self.commit()
+        
+    def save_all(self, objects: list):
+        self.__session.add_all(objects)
+        
+    def save_all_and_commit(self, objects: list):
+        self.save_all(objects)
+        self.commit()
+    
+    def save(self, object):
         self.__session.add(object)
+    
+    def commit(self):
         self.__session.commit()
         self.__session.flush()
         
