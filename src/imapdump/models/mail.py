@@ -10,5 +10,6 @@ class Mail(Base):
     __tablename__ = "mails"
     uid: Mapped[str] = mapped_column(primary_key=True)
     rfc822: Mapped[str] = mapped_column()
+    envelope: Mapped[str] = mapped_column()
     modified: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now())
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
