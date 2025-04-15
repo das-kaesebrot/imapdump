@@ -1,5 +1,6 @@
 from ..config.config import Config
 from ..imap.dumper import ImapDumper
+from ..db.data_service import DataService
 
 
 class ImapDumpHandler:
@@ -10,7 +11,7 @@ class ImapDumpHandler:
         for name, imap_config in config.servers.items():
             self._dumpers.append(
                 ImapDumper(
-                    config=imap_config, name=name, dump_folder=config.dump_folder
+                    config=imap_config, name=name, data_service=DataService(connection_string="sqlite:///test.db")
                 )
             )
 
