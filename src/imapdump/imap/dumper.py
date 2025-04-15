@@ -1,31 +1,32 @@
 import logging
 import os
-from ..utils.str_utils import envelope_to_msg_title
-from ..utils.hash_utils import filehash, bytehash
-from imapclient.response_types import Envelope
+
+from ..db.data_service import DataService
+from hashlib import sha256
 from ..config.imap_config import ImapConfig
+from ..models.mail import Mail
 from imapclient import IMAPClient
 
 
 class ImapDumper:
     _client: IMAPClient
-    _folder: str = None
     _logger: logging.Logger
+    _data_service: DataService
 
     _ignored_folders: list[str]
 
     CHUNKSIZE: int = 1000
 
-    def __init__(self, config: ImapConfig, name: str, dump_folder: str) -> None:
+    def __init__(self, config: ImapConfig, name: str, data_service: DataService) -> None:
         self._client = IMAPClient(
             host=config.host, port=config.port, use_uid=True, ssl=config.ssl
         )
 
         self._ignored_folders = config.ignored
 
-        self._folder = os.path.join(dump_folder, name)
-
         self._logger = logging.getLogger(f"dumper.{name}")
+        
+        self._data_service = data_service
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
 
@@ -34,7 +35,7 @@ class ImapDumper:
 
     def dump(self):
         messages_per_folder = self._get_all_messages()
-        self._write_message_files(messages_per_folder)
+        self._write_messages_to_database(messages_per_folder)
 
     def _get_all_messages(self) -> dict:
         # stop idling
@@ -57,6 +58,8 @@ class ImapDumper:
                 continue
 
             folder_names.append(name)
+            
+        messages = []
 
         # iterate over the remaining folders
         for name in folder_names:
@@ -68,8 +71,6 @@ class ImapDumper:
             if len(msg_ids) <= 0:
                 self._logger.info(f"Skipping empty directory '{name}'")
                 continue
-
-            messages_in_directory = {}
 
             chunks, remainder = divmod(len(msg_ids), self.CHUNKSIZE)
 
@@ -91,26 +92,25 @@ class ImapDumper:
                 # TODO don't retrieve entire message at first, only the size. Then compare to files already dumped and retrieve the full message as necessary.
                 # Get envelope info and entire message (RFC822)
                 for msgid, data in self._client.fetch(
-                    messages=ids, data=["RFC822", "ENVELOPE"]
+                    messages=ids, data=["RFC822"]
                 ).items():
-                    envelope = data.get(b"ENVELOPE")
                     rfc822 = data.get(b"RFC822")
 
                     # sanity check
-                    assert isinstance(envelope, Envelope)
-
-                    msg_filename = f"{envelope_to_msg_title(envelope)}.eml"
-
-                    # add message to folder specific dict using generated title as key
-                    messages_in_directory[msg_filename] = rfc822
-
-                # add message title/message content dict as directory dict entry
-                messages_in_account[name] = messages_in_directory
+                    mail_entity = Mail()
+                    mail_entity.id = sha256(f"{name}_{msgid}".encode()).hexdigest()
+                    mail_entity.folder = name
+                    mail_entity.uid = msgid
+                    mail_entity.rfc822 = rfc822
+                    
+                    messages.append(mail_entity)
                 
                 self._logger.info(
                     f"'{name}' progress: {percentage:.2f}%"
                 )
-
+        
+        self._data_service.save_all_and_commit(messages)        
+        
         # back to idling
         self._set_idle(True)
 
@@ -118,62 +118,26 @@ class ImapDumper:
 
         return messages_in_account
 
-    def _write_message_files(self, messages: dict):
+    def _write_messages_to_database(self, messages: dict):
         num_new = 0
         num_skipped = 0
         num_all = 0
 
-        self._logger.info(f"Dumping to '{self._folder}'")
+        self._logger.info(f"Dumping")
 
         for subfolder, messages in messages.items():
             assert isinstance(messages, dict)
 
-            account_subfolder_write_path = os.path.join(self._folder, subfolder)
-
-            os.makedirs(account_subfolder_write_path, exist_ok=True)
-
             num_all += len(messages)
 
             for message_filename, message_content in messages.items():
-                filename = os.path.join(account_subfolder_write_path, message_filename)
-
-                # check if message was already saved (by md5 hash comparison) and skip if that's the case
-                if os.path.isfile(filename):
-                    message_hash = bytehash(message_content)
-                    if filehash(filename) == message_hash:
-                        self._logger.debug(
-                            f"Skipping file '{filename}': Already exists and hash '{message_hash}' matches"
-                        )
-                        num_skipped += 1
-                        continue
-
-                self._logger.debug(f"Writing new file '{filename}'")
                 num_new += 1
-                with open(filename, "wb") as f:
-                    f.write(message_content)
-
-            self._cleanup_leftovers(messages.keys(), account_subfolder_write_path)
-
+                
+                
+        self._data_service.save_all_and_commit()
         self._logger.info(
             f"Done writing! New: {num_new}, skipped: {num_skipped}, total: {num_all}"
         )
-
-    # cleans up all unexpected files in a subfolder
-    def _cleanup_leftovers(self, allowed_files: list[str], folder: str):
-        files_in_directory = os.listdir(folder)
-        leftovers = [
-            filename for filename in files_in_directory if filename not in allowed_files
-        ]
-
-        self._logger.debug(f"Found {len(leftovers)} item(s) not in backup")
-
-        for filename in leftovers:
-            filename = os.path.join(folder, filename)
-            if not os.path.isfile(filename):
-                continue
-
-            self._logger.debug(f"Removing '{filename}'")
-            os.remove(filename)
 
     def _set_idle(self, idle: bool):
         if idle:
