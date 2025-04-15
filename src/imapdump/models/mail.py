@@ -8,8 +8,9 @@ from .base import Base
 
 class Mail(Base):
     __tablename__ = "mails"
-    uid: Mapped[str] = mapped_column(primary_key=True)
-    rfc822: Mapped[str] = mapped_column()
-    envelope: Mapped[str] = mapped_column()
-    modified: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now())
+    id: Mapped[str] = mapped_column(primary_key=True)
+    uid: Mapped[str] = mapped_column()
+    folder: Mapped[str] = mapped_column()
+    rfc822: Mapped[bytes] = mapped_column()
+    modified: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now(), default=func.now())
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
