@@ -1,9 +1,10 @@
+import argparse
 import logging
 import os
-import argparse
+import yamlargparse
 
-from .imap.handler import ImapDumpHandler
-from .config.handler import ConfigHandler
+from .imap.dumper import ImapDumper
+from .enums.imap_encryption_mode import ImapEncryptionMode
 
 
 def main():
@@ -13,9 +14,12 @@ def main():
     available_levels.remove(logging.getLevelName(logging.NOTSET).lower())
     available_levels.remove(logging.getLevelName(logging.WARNING).lower())
 
-    parser = argparse.ArgumentParser(
-        description="Dump IMAP accounts to a local directory"
+    parser = yamlargparse.ArgumentParser(
+        description="Dump IMAP accounts to a local directory",
+        error_handler=yamlargparse.usage_and_exit_error_handler,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,        
     )
+    
     parser.add_argument(
         "-l",
         "--logging",
@@ -25,6 +29,62 @@ def main():
         choices=available_levels,
         default=logging.getLevelName(logging.INFO).lower(),
     )
+    
+    parser.add_argument(
+        "--host",
+        help="Hostname of the IMAP server",
+        type=str,
+        required=True,
+    )    
+    
+    parser.add_argument(
+        "-d",
+        "--database",
+        help="Database file",
+        type=str,
+        dest="database_file",
+        default="imapdump.sqlite"
+    )
+    
+    parser.add_argument(
+        "-p",
+        "--port",
+        help="Port of the IMAP server",
+        type=int,
+        default=993,
+    )
+    
+    parser.add_argument(
+        "-u",
+        "--username",
+        help="Username for the IMAP account",
+        type=str,
+        default=None,
+    )
+    
+    parser.add_argument(
+        "--password",
+        help="Password of the IMAP account",
+        type=str,
+        default=None,
+    )
+    
+    parser.add_argument(
+        "--encryption-mode",
+        help="IMAP encryption mode",        
+        type=ImapEncryptionMode,
+        required=False,
+        choices=ImapEncryptionMode.list(),
+    )
+    
+    parser.add_argument(
+        "--folder-regex",
+        help="Pattern to match against for including folders",
+        type=str,
+        default="^.*$"
+    )
+    
+    parser.add_argument('--config', action=yamlargparse.ActionConfigFile)
 
     args = parser.parse_args()
 
@@ -36,10 +96,9 @@ def main():
     logger.debug(f"Running as UID {os.getuid()}")
 
     try:
-        conf_handler = ConfigHandler()
-        handler = ImapDumpHandler(conf_handler.config)
+        dumper = ImapDumper()
 
-        handler.dump()
+        dumper.dump()
 
     except KeyboardInterrupt as e:
         logger.info("Got KeyboardInterrupt")
