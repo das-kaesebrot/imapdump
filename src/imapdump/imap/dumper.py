@@ -1,9 +1,8 @@
 import logging
-import os
 
 from ..db.data_service import DataService
 from hashlib import sha256
-from ..config.imap_config import ImapConfig
+from ..config.imap_config import ImapDumpConfig
 from ..models.mail import Mail
 from imapclient import IMAPClient
 
@@ -17,7 +16,7 @@ class ImapDumper:
 
     CHUNKSIZE: int = 1000
 
-    def __init__(self, config: ImapConfig, name: str, data_service: DataService) -> None:
+    def __init__(self, config: ImapDumpConfig, name: str, data_service: DataService) -> None:
         self._client = IMAPClient(
             host=config.host, port=config.port, use_uid=True, ssl=config.ssl
         )

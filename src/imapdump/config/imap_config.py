@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class ImapConfig:
+class ImapDumpConfig:
     host: str
     username: str = None
     password: str = None
