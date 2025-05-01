@@ -1,4 +1,5 @@
 import logging
+import re
 
 from ..db.data_service import DataService
 from hashlib import sha256
@@ -56,30 +57,26 @@ class ImapDumper:
         # stop idling
         self._set_idle(False)
 
-        messages_in_account = {}
-
         # get all folders in IMAP account
         folders = self._client.list_folders()
         folder_names = []
 
-        # filter folders based on ignored folder settings
-        for flags, delim, name in folders:
-            self._logger.debug(f"{flags=}, {delim=}, {name=}")
+        # filter folders based on regex
+        for flags, delim, folder_name in folders:
+            self._logger.debug(f"{flags=}, {delim=}, {folder_name=}")
 
-            stripped_name = name.split(delim.decode())[-1]
-
-            if stripped_name in self._ignored_folders or name in self._ignored_folders:
-                self._logger.info(f"Skipping ignored directory '{name}'")
+            if not re.match(self._folder_regex, folder_name):
+                self._logger.info(f"Skipping ignored directory '{folder_name}'")
                 continue
 
-            folder_names.append(name)
+            folder_names.append(folder_name)
             
         messages = []
 
         # iterate over the remaining folders
-        for name in folder_names:
+        for folder_name in folder_names:
             # select folder to be examined
-            self._client.select_folder(name, readonly=True)
+            self._client.select_folder(folder_name, readonly=True)
 
             msg_ids = self._client.search()
 
