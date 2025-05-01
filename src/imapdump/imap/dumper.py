@@ -3,6 +3,7 @@ import logging
 from ..db.data_service import DataService
 from hashlib import sha256
 from ..config.imap_config import ImapDumpConfig
+from ..enums.imap_encryption_mode import ImapEncryptionMode
 from ..models.mail import Mail
 from imapclient import IMAPClient
 
@@ -12,24 +13,39 @@ class ImapDumper:
     _logger: logging.Logger
     _data_service: DataService
 
-    _ignored_folders: list[str]
+    _folder_regex: str
+    
+    _dump_to_stdout: bool = True
 
     CHUNKSIZE: int = 1000
 
-    def __init__(self, config: ImapDumpConfig, name: str, data_service: DataService) -> None:
-        self._client = IMAPClient(
-            host=config.host, port=config.port, use_uid=True, ssl=config.ssl
-        )
+    def __init__(self, config: ImapDumpConfig) -> None:
+        if config.encryption_mode == ImapEncryptionMode.NONE:    
+            self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=False)
+        elif config.encryption_mode == ImapEncryptionMode.STARTTLS:
+            self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=False)
+            self._client.starttls()
+        elif config.encryption_mode == ImapEncryptionMode.SSL:
+            self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=True)
 
-        self._ignored_folders = config.ignored
+        self._folder_regex = config.folder_regex
 
-        self._logger = logging.getLogger(f"dumper.{name}")
+        self._logger = logging.getLogger(f"dumper")
         
-        self._data_service = data_service
+        connection_string = "sqlite:///:memory:"
+        
+        if config.database_file:
+            self._dump_to_stdout = False
+            connection_string = f"sqlite:///{config.database_file}"
+        
+        self._data_service = DataService(connection_string = connection_string)
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
-
-        self._client.login(config.username, config.password)
+        
+        if config.username and config.password:
+            self._logger.debug(f"Logging in with credentials to IMAP server: '{config.username}'")
+            self._client.login(config.username, config.password)
+            
         self._set_idle(True)
 
     def dump(self):
