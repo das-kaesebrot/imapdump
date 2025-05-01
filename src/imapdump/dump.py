@@ -39,12 +39,12 @@ def main():
     )    
     
     parser.add_argument(
-        "-d",
-        "--database",
+        "-f",
+        "--file",
         help="Database file",
         type=str,
         dest="database_file",
-        default="imapdump.sqlite"
+        default=None
     )
     
     parser.add_argument(
@@ -76,6 +76,7 @@ def main():
         type=ImapEncryptionMode,
         required=False,
         choices=ImapEncryptionMode.list(),
+        default=ImapEncryptionMode.SSL,
     )
     
     parser.add_argument(
