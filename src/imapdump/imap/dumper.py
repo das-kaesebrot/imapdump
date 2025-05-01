@@ -16,7 +16,7 @@ class ImapDumper:
 
     _folder_regex: str
     
-    _dump_to_stdout: bool = True
+    _force_dump: bool = True
 
     CHUNKSIZE: int = 1000
 
@@ -30,6 +30,7 @@ class ImapDumper:
             self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=True)
 
         self._folder_regex = config.folder_regex
+        self._force_dump = config.force_dump
 
         self._logger = logging.getLogger(f"dumper")
         
