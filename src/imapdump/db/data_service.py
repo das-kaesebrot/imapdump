@@ -42,6 +42,11 @@ class DataService:
             mail.id = id
             
         return mail
+    
+    def mail_has_to_be_created_or_updated(self, id, size: int) -> bool:
+        mail = self.get_mail_by_id(id)
+          
+        return mail is None or mail.size != size
 
     def save_and_commit(self, object):
         self.save(object)
