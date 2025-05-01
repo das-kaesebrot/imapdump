@@ -13,4 +13,5 @@ class ImapDumpConfig:
     encryption_mode: ImapEncryptionMode = ImapEncryptionMode.SSL
     folder_regex: str = "^.*$"
     config: dict = None
+    force_dump: bool = False
     
