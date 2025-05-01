@@ -32,6 +32,16 @@ class DataService:
 
         return self.__session.scalars(select_statement).one_or_none()
     
+    def get_or_create_mail_by_id(self, id) -> Mail | None:
+        select_statement = select(Mail).where(Mail.id.is_(id))
+
+        mail = self.__session.scalars(select_statement).one_or_none()
+        
+        if not mail:
+            mail = Mail()
+            mail.id = id
+            
+        return mail
 
     def save_and_commit(self, object):
         self.save(object)
