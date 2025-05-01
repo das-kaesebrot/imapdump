@@ -5,6 +5,7 @@ import yamlargparse
 
 from .imap.dumper import ImapDumper
 from .enums.imap_encryption_mode import ImapEncryptionMode
+from .config.imap_config import ImapDumpConfig
 
 
 def main():
@@ -94,10 +95,11 @@ def main():
     )
     logger = logging.getLogger("main")
     logger.debug(f"Running as UID {os.getuid()}")
+    
+    config = ImapDumpConfig(**vars(args))
 
     try:
-        dumper = ImapDumper()
-
+        dumper = ImapDumper(config=config)
         dumper.dump()
 
     except KeyboardInterrupt as e:
