@@ -27,8 +27,8 @@ class DataService:
         self._logger.info("Shutting down")
         self.__session.close()
         
-    def get_mail_by_uid(self, uid) -> Mail | None:
-        select_statement = select(Mail).where(Mail.uid.is_(uid))
+    def get_mail_by_id(self, id) -> Mail | None:
+        select_statement = select(Mail).where(Mail.id.is_(id))
 
         return self.__session.scalars(select_statement).one_or_none()
     
