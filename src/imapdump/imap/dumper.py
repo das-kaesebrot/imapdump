@@ -2,7 +2,6 @@ import logging
 import re
 
 from ..db.data_service import DataService
-from hashlib import sha256
 from ..config.imap_config import ImapDumpConfig
 from ..enums.imap_encryption_mode import ImapEncryptionMode
 from ..models.mail import Mail
@@ -50,10 +49,9 @@ class ImapDumper:
         self._set_idle(True)
 
     def dump(self):
-        messages_per_folder = self._get_all_messages()
-        self._write_messages_to_database(messages_per_folder)
+        self._write_all_messages()
 
-    def _get_all_messages(self) -> dict:
+    def _write_all_messages(self) -> dict:
         # stop idling
         self._set_idle(False)
 
@@ -78,16 +76,16 @@ class ImapDumper:
             # select folder to be examined
             self._client.select_folder(folder_name, readonly=True)
 
-            msg_ids = self._client.search()
+            message_ids = self._client.search()
 
-            if len(msg_ids) <= 0:
-                self._logger.info(f"Skipping empty directory '{name}'")
+            if len(message_ids) <= 0:
+                self._logger.info(f"Skipping empty directory '{folder_name}'")
                 continue
 
-            chunks, remainder = divmod(len(msg_ids), self.CHUNKSIZE)
+            chunks, remainder = divmod(len(message_ids), self.CHUNKSIZE)
 
             self._logger.info(
-                f"Processing {len(msg_ids)} message(s) in directory '{name}'"
+                f"Processing {len(message_ids)} message(s) in directory '{folder_name}'"
             )
 
             if remainder != 0:
@@ -95,30 +93,50 @@ class ImapDumper:
 
             for chunk in range(chunks):
                 start = chunk * self.CHUNKSIZE
-                end = min((chunk + 1) * self.CHUNKSIZE, len(msg_ids))
+                end = min((chunk + 1) * self.CHUNKSIZE, len(message_ids))
 
-                ids = msg_ids[start:end]
+                ids = message_ids[start:end]
 
-                percentage = (end / len(msg_ids)) * 100
+                percentage = (end / len(message_ids)) * 100
+                
+                new_or_updated_messages = []
 
-                # TODO don't retrieve entire message at first, only the size. Then compare to files already dumped and retrieve the full message as necessary.
-                # Get envelope info and entire message (RFC822)
-                for msgid, data in self._client.fetch(
-                    messages=ids, data=["RFC822"]
+                if self._force_dump:
+                    # don't check against database if force dumping
+                    new_or_updated_messages = ids
+                else:
+                    # don't retrieve entire message at first, only the size. Then compare to files already dumped and retrieve the full message as necessary.
+                    for message_id, data in self._client.fetch(
+                        messages=ids, data=["RFC822.SIZE"]
+                    ).items():
+                        mail_entity = Mail()
+                        id = Mail.generate_id(folder_name=folder_name, message_id=message_id)
+                        size = data.get(b"RFC822.SIZE")
+                        
+                        create_or_update = self._data_service.mail_has_to_be_created_or_updated(id, size)
+                        
+                        if not create_or_update:
+                            continue
+                        
+                        new_or_updated_messages.append(message_id)
+                    
+                for message_id, data in self._client.fetch(
+                    messages=new_or_updated_messages, data=["RFC822", "RFC822.SIZE"]
                 ).items():
                     rfc822 = data.get(b"RFC822")
-
-                    # sanity check
-                    mail_entity = Mail()
-                    mail_entity.id = sha256(f"{name}_{msgid}".encode()).hexdigest()
-                    mail_entity.folder = name
-                    mail_entity.uid = msgid
+                    id = Mail.generate_id(folder_name=folder_name, message_id=message_id)
+                    mail_entity = self._data_service.get_or_create_mail_by_id(id)       
+                                 
+                    mail_entity.size = data.get(b"RFC822.SIZE")
+                    
+                    mail_entity.folder = folder_name
+                    mail_entity.uid = message_id
                     mail_entity.rfc822 = rfc822
                     
                     messages.append(mail_entity)
                 
                 self._logger.info(
-                    f"'{name}' progress: {percentage:.2f}%"
+                    f"'{folder_name}' progress: {percentage:.2f}%"
                 )
         
         self._data_service.save_all_and_commit(messages)        
@@ -126,30 +144,7 @@ class ImapDumper:
         # back to idling
         self._set_idle(True)
 
-        self._logger.info(f"Found {len(messages_in_account.keys())} message(s) to dump")
-
-        return messages_in_account
-
-    def _write_messages_to_database(self, messages: dict):
-        num_new = 0
-        num_skipped = 0
-        num_all = 0
-
-        self._logger.info(f"Dumping")
-
-        for subfolder, messages in messages.items():
-            assert isinstance(messages, dict)
-
-            num_all += len(messages)
-
-            for message_filename, message_content in messages.items():
-                num_new += 1
-                
-                
-        self._data_service.save_all_and_commit()
-        self._logger.info(
-            f"Done writing! New: {num_new}, skipped: {num_skipped}, total: {num_all}"
-        )
+        self._logger.info(f"Found {len(messages)} new or updated message(s) to dump")
 
     def _set_idle(self, idle: bool):
         if idle:
