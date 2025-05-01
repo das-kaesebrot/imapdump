@@ -35,8 +35,7 @@ def main():
         "--host",
         help="Hostname of the IMAP server",
         type=str,
-        required=True,
-    )    
+    )
     
     parser.add_argument(
         "-f",
@@ -84,6 +83,12 @@ def main():
         help="Pattern to match against for including folders",
         type=str,
         default="^.*$"
+    )
+    
+    parser.add_argument(
+        "--force-dump",
+        help="Force dump all matching messages without checking against existing database",
+        action="store_true",
     )
     
     parser.add_argument('--config', action=yamlargparse.ActionConfigFile)
