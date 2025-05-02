@@ -14,4 +14,3 @@ class ImapDumpConfig:
     folder_regex: str = "^.*$"
     config: dict = None
     force_dump: bool = False
-    

@@ -18,9 +18,9 @@ def main():
     parser = yamlargparse.ArgumentParser(
         description="Dump IMAP accounts to a local directory",
         error_handler=yamlargparse.usage_and_exit_error_handler,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,        
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    
+
     parser.add_argument(
         "-l",
         "--logging",
@@ -30,22 +30,22 @@ def main():
         choices=available_levels,
         default=logging.getLevelName(logging.INFO).lower(),
     )
-    
+
     parser.add_argument(
         "--host",
         help="Hostname of the IMAP server",
         type=str,
     )
-    
+
     parser.add_argument(
         "-f",
         "--file",
         help="Database file",
         type=str,
         dest="database_file",
-        default=None
+        default=None,
     )
-    
+
     parser.add_argument(
         "-p",
         "--port",
@@ -53,7 +53,7 @@ def main():
         type=int,
         default=993,
     )
-    
+
     parser.add_argument(
         "-u",
         "--username",
@@ -61,37 +61,37 @@ def main():
         type=str,
         default=None,
     )
-    
+
     parser.add_argument(
         "--password",
         help="Password of the IMAP account",
         type=str,
         default=None,
     )
-    
+
     parser.add_argument(
         "--encryption-mode",
-        help="IMAP encryption mode",        
+        help="IMAP encryption mode",
         type=ImapEncryptionMode,
         required=False,
         choices=ImapEncryptionMode.list(),
         default=ImapEncryptionMode.SSL,
     )
-    
+
     parser.add_argument(
         "--folder-regex",
         help="Pattern to match against for including folders",
         type=str,
-        default="^.*$"
+        default="^.*$",
     )
-    
+
     parser.add_argument(
         "--force-dump",
         help="Force dump all matching messages without checking against existing database",
         action="store_true",
     )
-    
-    parser.add_argument('--config', action=yamlargparse.ActionConfigFile)
+
+    parser.add_argument("--config", action=yamlargparse.ActionConfigFile)
 
     args = parser.parse_args()
 
@@ -101,7 +101,7 @@ def main():
     )
     logger = logging.getLogger("main")
     logger.debug(f"Running as UID {os.getuid()}")
-    
+
     config = ImapDumpConfig(**vars(args))
 
     try:

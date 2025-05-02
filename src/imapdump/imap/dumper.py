@@ -14,38 +14,46 @@ class ImapDumper:
     _data_service: DataService
 
     _folder_regex: str
-    
+
     _force_dump: bool = True
 
     CHUNKSIZE: int = 1000
 
     def __init__(self, config: ImapDumpConfig) -> None:
-        if config.encryption_mode == ImapEncryptionMode.NONE:    
-            self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=False)
+        if config.encryption_mode == ImapEncryptionMode.NONE:
+            self._client = IMAPClient(
+                host=config.host, port=config.port, use_uid=True, ssl=False
+            )
         elif config.encryption_mode == ImapEncryptionMode.STARTTLS:
-            self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=False)
+            self._client = IMAPClient(
+                host=config.host, port=config.port, use_uid=True, ssl=False
+            )
             self._client.starttls()
         elif config.encryption_mode == ImapEncryptionMode.SSL:
-            self._client = IMAPClient(host=config.host, port=config.port, use_uid=True, ssl=True)
+            self._client = IMAPClient(
+                host=config.host, port=config.port, use_uid=True, ssl=True
+            )
 
         self._folder_regex = config.folder_regex
         self._force_dump = config.force_dump
 
         self._logger = logging.getLogger(f"dumper")
-        
+
         connection_string = "sqlite:///imapdump.db"
-        
+
         if config.database_file:
             connection_string = f"sqlite:///{config.database_file}"
-        
-        self._data_service = DataService(connection_string = connection_string)
+
+        self._data_service = DataService(connection_string=connection_string)
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
-        
+
         if config.username and config.password:
-            self._logger.debug(f"Logging in with credentials to IMAP server: '{config.username}'")
+            self._logger.debug(
+                f"Logging in with credentials to IMAP server: '{config.username}'"
+            )
             self._client.login(config.username, config.password)
-            
+
         self._set_idle(True)
 
     def dump(self):
@@ -68,7 +76,7 @@ class ImapDumper:
                 continue
 
             folder_names.append(folder_name)
-            
+
         messages = []
 
         # iterate over the remaining folders
@@ -98,7 +106,7 @@ class ImapDumper:
                 ids = message_ids[start:end]
 
                 percentage = (end / len(message_ids)) * 100
-                
+
                 new_or_updated_messages = []
 
                 if self._force_dump:
@@ -110,37 +118,43 @@ class ImapDumper:
                         messages=ids, data=["RFC822.SIZE"]
                     ).items():
                         mail_entity = Mail()
-                        id = Mail.generate_id(folder_name=folder_name, message_id=message_id)
+                        id = Mail.generate_id(
+                            folder_name=folder_name, message_id=message_id
+                        )
                         size = data.get(b"RFC822.SIZE")
-                        
-                        create_or_update = self._data_service.mail_has_to_be_created_or_updated(id, size)
-                        
+
+                        create_or_update = (
+                            self._data_service.mail_has_to_be_created_or_updated(
+                                id, size
+                            )
+                        )
+
                         if not create_or_update:
                             continue
-                        
+
                         new_or_updated_messages.append(message_id)
-                    
+
                 for message_id, data in self._client.fetch(
                     messages=new_or_updated_messages, data=["RFC822", "RFC822.SIZE"]
                 ).items():
                     rfc822 = data.get(b"RFC822")
-                    id = Mail.generate_id(folder_name=folder_name, message_id=message_id)
-                    mail_entity = self._data_service.get_or_create_mail_by_id(id)       
-                                 
+                    id = Mail.generate_id(
+                        folder_name=folder_name, message_id=message_id
+                    )
+                    mail_entity = self._data_service.get_or_create_mail_by_id(id)
+
                     mail_entity.size = data.get(b"RFC822.SIZE")
-                    
+
                     mail_entity.folder = folder_name
                     mail_entity.uid = message_id
                     mail_entity.rfc822 = rfc822
-                    
+
                     messages.append(mail_entity)
-                
-                self._logger.info(
-                    f"'{folder_name}' progress: {percentage:.2f}%"
-                )
-        
-        self._data_service.save_all_and_commit(messages)        
-        
+
+                self._logger.info(f"'{folder_name}' progress: {percentage:.2f}%")
+
+        self._data_service.save_all_and_commit(messages)
+
         # back to idling
         self._set_idle(True)
 

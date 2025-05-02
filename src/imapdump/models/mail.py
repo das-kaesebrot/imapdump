@@ -14,10 +14,11 @@ class Mail(Base):
     folder: Mapped[str] = mapped_column()
     rfc822: Mapped[bytes] = mapped_column()
     size: Mapped[int] = mapped_column()
-    modified: Mapped[datetime] = mapped_column(DateTime, onupdate=func.now(), default=func.now())
+    modified: Mapped[datetime] = mapped_column(
+        DateTime, onupdate=func.now(), default=func.now()
+    )
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    
+
     @staticmethod
     def generate_id(folder_name: str, message_id: str) -> str:
         return sha256(f"{folder_name}_{message_id}".encode()).hexdigest()
-    
