@@ -1,7 +1,7 @@
 # imapdump
 [![Upload Python Package](https://github.com/das-kaesebrot/imapdump/actions/workflows/python-publish.yml/badge.svg)](https://github.com/das-kaesebrot/imapdump/actions/workflows/python-publish.yml)
 
-`imapdump` is a cli based tool to export imap accounts to a local folder.
+`imapdump` is a cli based tool to export an IMAP account to a local folder.
 
 ## Installation
 
@@ -10,11 +10,21 @@ Install the module from [PyPI](https://pypi.org/project/imapdump/):
 pip install imapdump
 ```
 
+or simply run it using [`uvx`](https://docs.astral.sh/uv/guides/tools/) (recommended):
+```bash
+uvx imapdump [args...]
+```
+
 ## Usage
 Launch the application via the included command `imapdump`.
 
+You may also run it using [`uv tool run`](https://docs.astral.sh/uv/guides/tools/) (recommended method).
+
 ```bash
-user@machine:~$ imapdump -h
+# regular pip install
+$ imapdump -h
+# ...or uvx
+$ uvx imapdump -h
 usage: dump.py [-h] [-l {critical,fatal,error,warn,info,debug}] [--host HOST] [-f DATABASE_FILE] [-p PORT] [-u USERNAME]
                    [--password PASSWORD] [--encryption-mode {none,ssl,starttls}] [--folder-regex FOLDER_REGEX] [--force-dump]
                    [--dump-folder DUMP_FOLDER] [--config CONFIG]
@@ -56,7 +66,7 @@ dump_folder: /path/to/dump/folder
 
 Then run the application:
 ```bash
-user@machine~$ imapdump -l debug --config config.yml
+user@machine:~$ imapdump -l debug --config config.yml
 ```
 
 ## Open Source License Attribution
