@@ -1,5 +1,7 @@
 import logging
 import re
+import os
+import shutil
 
 from ..db.data_service import DataService
 from ..config.imap_config import ImapDumpConfig
@@ -12,6 +14,8 @@ class ImapDumper:
     _client: IMAPClient
     _logger: logging.Logger
     _data_service: DataService
+    
+    _dump_folder: str
 
     _folder_regex: str
 
@@ -47,6 +51,7 @@ class ImapDumper:
         self._data_service = DataService(connection_string=connection_string)
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
+        self._dump_folder = os.path.abspath(os.path.expanduser(config.dump_folder.rstrip("/")))
 
         if config.username and config.password:
             self._logger.debug(
@@ -57,9 +62,10 @@ class ImapDumper:
         self._set_idle(True)
 
     def dump(self):
-        self._write_all_messages()
+        self._write_all_messages_to_db()
+        self._dump_to_folder()
 
-    def _write_all_messages(self) -> dict:
+    def _write_all_messages_to_db(self) -> dict:
         # stop idling
         self._set_idle(False)
 
@@ -135,7 +141,7 @@ class ImapDumper:
                         new_or_updated_messages.append(message_id)
 
                 for message_id, data in self._client.fetch(
-                    messages=new_or_updated_messages, data=["RFC822", "RFC822.SIZE"]
+                    messages=new_or_updated_messages, data=["RFC822", "RFC822.SIZE", "INTERNALDATE"]
                 ).items():
                     rfc822 = data.get(b"RFC822")
                     id = Mail.generate_id(
@@ -160,6 +166,33 @@ class ImapDumper:
         self._set_idle(True)
 
         self._logger.info(f"Found {len(messages)} new or updated message(s) to dump")
+        
+    def _dump_to_folder(self):
+        if not self._dump_folder:
+            self._logger.warning("No dump folder specified, ignoring folder output!")
+            return
+        
+        all_mails = self._data_service.get_all_mails()
+        
+        self._logger.info(f"Dumping {len(all_mails)} message(s) to '{self._dump_folder}'")
+        
+        if self._force_dump:
+            shutil.rmtree(self._dump_folder)
+        
+        os.makedirs(self._dump_folder, exist_ok=True)
+        
+        for mail in all_mails:
+            mail_folder = os.path.join(self._dump_folder, mail.folder)
+            if not os.path.isdir(mail_folder):
+                os.makedirs(mail_folder, exist_ok=False)
+            
+            filename = os.path.join(mail_folder, f"{mail.id}.eml")
+            
+            with open(filename, mode="wb") as f:
+                f.write(mail.rfc822)
+            
+            # set modification time to mail timestamp
+            os.utime(filename, (mail.date.timestamp(), mail.date.timestamp()))
 
     def _set_idle(self, idle: bool):
         if idle:
