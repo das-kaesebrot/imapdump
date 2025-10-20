@@ -119,6 +119,7 @@ class ImapDumper:
 
                 if self._force_dump:
                     # don't check against database if force dumping
+                    self._data_service.remove_all_mails() # clean the cache
                     new_or_updated_messages = ids
                 else:
                     # don't retrieve entire message at first, only the size. Then compare to files already dumped and retrieve the full message as necessary.
