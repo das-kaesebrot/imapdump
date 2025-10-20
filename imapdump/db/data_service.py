@@ -10,7 +10,7 @@ class DataService:
     __session = None
     _logger: logging.Logger
 
-    def __init__(self, *, connection_string: str | URL = "sqlite://") -> None:
+    def __init__(self, *, connection_string: str | URL = "sqlite://", recreate: bool = False) -> None:
         self._logger = logging.getLogger(__name__)
         self._logger.info(
             f"Creating database engine with connection string '{connection_string}'"
@@ -20,6 +20,10 @@ class DataService:
         echo = self._logger.getEffectiveLevel() <= logging.DEBUG
 
         self.__engine = create_engine(connection_string, echo=echo)
+        if recreate:
+            Base.metadata.drop_all(self.__engine)
+            self._logger.info("Dropped existing database")
+        
         Base.metadata.create_all(self.__engine)
         self.__session = Session(self.__engine)
 
