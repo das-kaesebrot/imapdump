@@ -103,8 +103,6 @@ def main():
         "--config", help="Supply a config file", action=yamlargparse.ActionConfigFile
     )
 
-    print(f"\n[imapdump v{__version__}]\n")
-
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -112,6 +110,7 @@ def main():
         level=args.loglevel.upper(),
     )
     logger = logging.getLogger("imapdump.main")
+    logger.info(f"Running version {__version__}]")
     logger.debug(f"Running as UID {os.getuid()}")
 
     config = ImapDumpConfig(**vars(args))
