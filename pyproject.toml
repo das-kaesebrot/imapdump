@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=62.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imapdump"
+dynamic = ["version", "dependencies"]
+
+authors = [
+    { name="das-kaesebrot", email="49565683+das-kaesebrot@users.noreply.github.com" }
+]
+
+description = "A cli utility for dumping emails as EML files to a folder."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    
+    "Development Status :: 4 - Beta",
+
+    "Intended Audience :: System Administrators",
+
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+
+    "Environment :: Console",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/das-kaesebrot/imapdump"
+"Bug Tracker" = "https://github.com/das-kaesebrot/imapdump/issues"
+
+[project.scripts]
+imapdump = "src.imapdump.dump:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "src.imapdump.__version__"}  # any module attribute compatible with ast.literal_eval
+dependencies = {file = ["requirements.txt"]}
