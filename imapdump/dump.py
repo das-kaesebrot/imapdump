@@ -99,10 +99,12 @@ def main():
         default=None,
     )
 
-    parser.add_argument("--config", help="Supply a config file", action=yamlargparse.ActionConfigFile)
-    
+    parser.add_argument(
+        "--config", help="Supply a config file", action=yamlargparse.ActionConfigFile
+    )
+
     print(f"\n[imapdump v{__version__}]\n")
-    
+
     args = parser.parse_args()
 
     logging.basicConfig(

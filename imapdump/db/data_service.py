@@ -10,7 +10,9 @@ class DataService:
     __session = None
     _logger: logging.Logger
 
-    def __init__(self, *, connection_string: str | URL = "sqlite://", recreate: bool = False) -> None:
+    def __init__(
+        self, *, connection_string: str | URL = "sqlite://", recreate: bool = False
+    ) -> None:
         self._logger = logging.getLogger(__name__)
         self._logger.info(
             f"Creating database engine with connection string '{connection_string}'"
@@ -23,7 +25,7 @@ class DataService:
         if recreate:
             Base.metadata.drop_all(self.__engine)
             self._logger.info("Dropped existing database")
-        
+
         Base.metadata.create_all(self.__engine)
         self.__session = Session(self.__engine)
 
@@ -33,7 +35,7 @@ class DataService:
     def __del__(self):
         self._logger.info("Shutting down")
         self.__session.close()
-        
+
     def get_all_mails(self) -> list[Mail]:
         select_statement = select(Mail)
         return self.__session.scalars(select_statement).all()
@@ -72,7 +74,7 @@ class DataService:
 
     def save(self, object):
         self.__session.add(object)
-        
+
     def remove_all_mails(self):
         delete_statement = delete(Mail)
         self.__session.execute(delete_statement)
