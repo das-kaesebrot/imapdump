@@ -1,5 +1,5 @@
 import logging
-from sqlalchemy import URL, create_engine, Engine, select
+from sqlalchemy import URL, create_engine, Engine, select, delete
 from sqlalchemy.orm import Session
 
 from ..models.mail import Base, Mail
@@ -68,6 +68,11 @@ class DataService:
 
     def save(self, object):
         self.__session.add(object)
+        
+    def remove_all_mails(self):
+        delete_statement = delete(Mail)
+        self.__session.execute(delete_statement)
+        self.commit()
 
     def commit(self):
         self.__session.commit()
