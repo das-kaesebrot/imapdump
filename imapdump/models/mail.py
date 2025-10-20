@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.sql import func
 from .base import Base
-from hashlib import sha256
+import hashlib
 
 
 class Mail(Base):
@@ -22,4 +22,6 @@ class Mail(Base):
 
     @staticmethod
     def generate_id(folder_name: str, message_id: str) -> str:
-        return sha256(f"{folder_name}_{message_id}".encode()).hexdigest()
+        h = hashlib.blake2b(digest_size=20)
+        h.update(f"{folder_name}_{message_id}".encode())
+        return h.hexdigest()
