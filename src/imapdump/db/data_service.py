@@ -29,6 +29,10 @@ class DataService:
     def __del__(self):
         self._logger.info("Shutting down")
         self.__session.close()
+        
+    def get_all_mails(self) -> list[Mail]:
+        select_statement = select(Mail)
+        return self.__session.scalars(select_statement).all()
 
     def get_mail_by_id(self, id) -> Mail | None:
         select_statement = select(Mail).where(Mail.id.is_(id))
