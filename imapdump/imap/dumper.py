@@ -71,6 +71,7 @@ class ImapDumper:
         self._dump_to_folder()
 
     def _write_all_messages_to_db(self) -> dict:
+        self._logger.info(f"Updating cache")
         # stop idling
         self._set_idle(False)
 
@@ -168,10 +169,12 @@ class ImapDumper:
 
         # back to idling
         self._set_idle(True)
-
+        
+        self._logger.info(f"Done updating cache")
         self._logger.info(f"Found {len(messages)} new or updated message(s) to dump")
         
     def _dump_to_folder(self):
+        self._logger.info(f"Starting writer")
         if not self._dump_folder:
             self._logger.warning("No dump folder specified, ignoring folder output!")
             return
@@ -230,7 +233,7 @@ class ImapDumper:
         if counter > 0:
             self._set_idle(True)
         
-        self._logger.info(f"Dumped {counter} message(s) ({skipped} already dumped before)")
+        self._logger.info(f"Done writing to filesystem")
 
     def _set_idle(self, idle: bool):
         if idle and not self._is_idle:
