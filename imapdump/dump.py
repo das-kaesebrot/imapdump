@@ -120,9 +120,9 @@ def main():
         dumper = ImapDumper(config=config)
         dumper.dump()
 
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         logger.info("Got KeyboardInterrupt")
-    except Exception as e:
+    except Exception:
         logger.exception("Exception encountered")
     finally:
         logger.info("Shutting down")

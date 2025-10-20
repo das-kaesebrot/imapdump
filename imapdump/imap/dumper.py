@@ -78,7 +78,7 @@ class ImapDumper:
 
     def _write_all_messages_to_db(self) -> dict:
         logger = self._logger.getChild("cache")
-        logger.info(f"Updating cache")
+        logger.info("Updating cache")
         # stop idling
         self._set_idle(False)
 
@@ -184,12 +184,12 @@ class ImapDumper:
         # back to idling
         self._set_idle(True)
 
-        logger.info(f"Done updating cache")
+        logger.info("Done updating cache")
         logger.info(f"Found {len(messages)} new or updated message(s) to dump")
 
     def _dump_to_folder(self):
         logger = self._logger.getChild("writer")
-        logger.info(f"Starting writer")
+        logger.info("Starting writer")
         if not self._dump_folder:
             logger.warning("No dump folder specified, ignoring folder output!")
             return
@@ -224,7 +224,7 @@ class ImapDumper:
                 skipped += 1
                 continue
 
-            if not mail.folder in folder_uid_map.keys():
+            if mail.folder not in folder_uid_map.keys():
                 folder_uid_map[mail.folder] = {}
 
             folder_uid_map[mail.folder][str(mail.uid)] = filename
@@ -277,7 +277,7 @@ class ImapDumper:
         if written > 0:
             self._set_idle(True)
 
-        logger.info(f"Done writing to filesystem")
+        logger.info("Done writing to filesystem")
         logger.info(f"Dumped {written} message(s) ({skipped} already dumped before)")
 
     def _set_idle(self, idle: bool):
@@ -294,11 +294,11 @@ class ImapDumper:
     # https://stackoverflow.com/a/39059279
     # remove non-ascii chars and truncate to a fixed length
     @staticmethod
-    def replace_trash(unicode_string, truncate_length: int = 32) -> str:
+    def replace_trash(unicode_string: str, truncate_length: int = 32) -> str:
         for i in range(0, len(unicode_string)):
             try:
                 unicode_string[i].encode("ascii")
-            except:
+            except UnicodeEncodeError:
                 # means it's non-ASCII
                 unicode_string = unicode_string[i].replace(
                     ""

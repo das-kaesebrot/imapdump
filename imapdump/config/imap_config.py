@@ -1,5 +1,5 @@
 from ..enums.imap_encryption_mode import ImapEncryptionMode
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass
