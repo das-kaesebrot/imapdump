@@ -91,6 +91,13 @@ def main():
         action="store_true",
     )
 
+    parser.add_argument(
+        "--dump-folder",
+        help="Where to dump .eml files to",
+        type=str,
+        default=None,
+    )
+
     parser.add_argument("--config", action=yamlargparse.ActionConfigFile)
 
     args = parser.parse_args()
