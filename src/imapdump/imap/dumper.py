@@ -148,6 +148,7 @@ class ImapDumper:
                     mail_entity.folder = folder_name
                     mail_entity.uid = message_id
                     mail_entity.rfc822 = rfc822
+                    mail_entity.date = data.get(b"INTERNALDATE")
 
                     messages.append(mail_entity)
 

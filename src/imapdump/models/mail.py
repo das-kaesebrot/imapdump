@@ -14,6 +14,7 @@ class Mail(Base):
     folder: Mapped[str] = mapped_column()
     rfc822: Mapped[bytes] = mapped_column()
     size: Mapped[int] = mapped_column()
+    date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     modified: Mapped[datetime] = mapped_column(
         DateTime, onupdate=func.now(), default=func.now()
     )
