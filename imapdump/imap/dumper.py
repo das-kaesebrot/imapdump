@@ -73,8 +73,8 @@ class ImapDumper:
         self._is_idle = True
 
     def dump(self):
-        self._write_all_messages_to_db()
-        self._dump_to_folder()
+        empty_folders = self._write_all_messages_to_db()
+        self._dump_to_folder(empty_folders)
 
     def _write_all_messages_to_db(self) -> dict:
         logger = self._logger.getChild("cache")
@@ -85,6 +85,7 @@ class ImapDumper:
         # get all folders in IMAP account
         folders = self._client.list_folders()
         folder_names = []
+        empty_folders = []
 
         # filter folders based on regex
         for flags, delim, folder_name in folders:
@@ -107,7 +108,7 @@ class ImapDumper:
 
             if len(message_ids) <= 0:
                 logger.info(f"Skipping empty directory '{folder_name}'")
-                continue
+                empty_folders.append(folder_name)
 
             chunks, remainder = divmod(len(message_ids), self.CHUNKSIZE)
 
@@ -186,8 +187,10 @@ class ImapDumper:
 
         logger.info("Done updating cache")
         logger.info(f"Found {len(messages)} new or updated message(s) to dump")
+        
+        return empty_folders
 
-    def _dump_to_folder(self):
+    def _dump_to_folder(self, empty_folders: list[str]):
         logger = self._logger.getChild("writer")
         logger.info("Starting writer")
         if not self._dump_folder:
@@ -202,6 +205,10 @@ class ImapDumper:
             shutil.rmtree(self._dump_folder)
 
         os.makedirs(self._dump_folder, exist_ok=True)
+        
+        for empty_folder in empty_folders:
+            logger.info(f"Dumping empty folder '{empty_folder}'")
+            os.makedirs(os.path.join(self._dump_folder, empty_folder), exist_ok=True)
 
         written = 0
         written_byte = 0
