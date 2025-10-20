@@ -185,18 +185,52 @@ class ImapDumper:
         
         os.makedirs(self._dump_folder, exist_ok=True)
         
+        counter = 0
+        skipped = 0
+        
+        folder_uid_map = {}
+        
         for mail in all_mails:
-            mail_folder = os.path.join(self._dump_folder, mail.folder)
-            if not os.path.isdir(mail_folder):
-                os.makedirs(mail_folder, exist_ok=False)
+            fs_mail_folder = os.path.join(self._dump_folder, mail.folder)
+            if not os.path.isdir(fs_mail_folder):
+                os.makedirs(fs_mail_folder, exist_ok=False)
             
-            filename = os.path.join(mail_folder, f"{mail.id}.eml")
+            filename = os.path.join(fs_mail_folder, f"{mail.id}.eml")
             
-            with open(filename, mode="wb") as f:
-                f.write(mail.rfc822)
+            # skip file write if not force dumping and the file already exists
+            if os.path.exists(filename) and not self._force_dump:
+                skipped += 1
+                continue
+            
+            if not mail.folder in folder_uid_map.keys():
+                folder_uid_map[mail.folder] = {}
+                
+            folder_uid_map[mail.folder][str(mail.uid)] = filename
+        
+        if skipped != len(all_mails):
+            self._set_idle(False)
+            
+        for folder, mails_in_folder in folder_uid_map.items():
+            self._client.select_folder(folder, readonly=True)
+        
+            for message_id, data in self._client.fetch(
+                messages=mails_in_folder.keys(), data=["RFC822"]
+            ).items():
+                rfc822 = data.get(b"RFC822")
+                filename = mails_in_folder[str(message_id)]
+                
+                with open(filename, mode="wb") as f:
+                    f.write(rfc822)
+            
+                counter += 1
             
             # set modification time to mail timestamp
             os.utime(filename, (mail.date.timestamp(), mail.date.timestamp()))
+        
+        if counter > 0:
+            self._set_idle(True)
+        
+        self._logger.info(f"Dumped {counter} message(s) ({skipped} already dumped before)")
 
     def _set_idle(self, idle: bool):
         if idle and not self._is_idle:
