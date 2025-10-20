@@ -111,7 +111,7 @@ def main():
         format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
         level=args.loglevel.upper(),
     )
-    logger = logging.getLogger("main")
+    logger = logging.getLogger("imapdump.main")
     logger.debug(f"Running as UID {os.getuid()}")
 
     config = ImapDumpConfig(**vars(args))
