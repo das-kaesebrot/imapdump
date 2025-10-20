@@ -177,7 +177,7 @@ class ImapDumper:
         
         self._logger.info(f"Dumping {len(all_mails)} message(s) to '{self._dump_folder}'")
         
-        if self._force_dump:
+        if self._force_dump and os.path.isdir(self._dump_folder):
             shutil.rmtree(self._dump_folder)
         
         os.makedirs(self._dump_folder, exist_ok=True)
