@@ -31,8 +31,8 @@ classifiers = [
 "Bug Tracker" = "https://github.com/das-kaesebrot/imapdump/issues"
 
 [project.scripts]
-imapdump = "src.imapdump.dump:main"
+imapdump = "imapdump.dump:main"
 
 [tool.setuptools.dynamic]
-version = {attr = "src.imapdump.__version__"}  # any module attribute compatible with ast.literal_eval
+version = {attr = "imapdump.__version__"}  # any module attribute compatible with ast.literal_eval
 dependencies = {file = ["requirements.txt"]}
