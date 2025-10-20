@@ -43,18 +43,18 @@ class ImapDumper:
         self._folder_regex = config.folder_regex
         self._force_dump = config.force_dump
 
-        self._logger = logging.getLogger(f"dumper")
-
-        connection_string = "sqlite:///.imapdump-cache.db"
-
+        self._logger = logging.getLogger(__name__)
+            
+        database_file = ".imapdump-cache.db"
         if config.database_file:
-            connection_string = f"sqlite:///{config.database_file}"
-
-        self._data_service = DataService(connection_string=connection_string)
+            database_file = config.database_file
+        
+        if self._force_dump:
+            self._logger.info("FORCE DUMP ACTIVATED, DUMP FOLDER AND CACHE WILL BE RECREATED!")
+            
+        self._data_service = DataService(connection_string=f"sqlite:///{database_file}", recreate=self._force_dump)
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
-        if self._force_dump:
-            self._logger.warning("FORCE DUMP ACTIVATED, DUMP FOLDER AND CACHE WILL BE RECREATED!")
         self._dump_folder = os.path.abspath(os.path.expanduser(config.dump_folder.rstrip("/")))
 
         if config.username and config.password:
