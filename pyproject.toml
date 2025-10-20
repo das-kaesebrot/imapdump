@@ -33,9 +33,6 @@ classifiers = [
 [project.scripts]
 imapdump = "imapdump.dump:main"
 
-[tool.setuptools.packages.find]
-include = ["imapdump"]  # package names should match these glob patterns (["*"] by default)
-
 [tool.setuptools.dynamic]
 version = {attr = "imapdump.__version__"}  # any module attribute compatible with ast.literal_eval
 dependencies = {file = ["requirements.txt"]}

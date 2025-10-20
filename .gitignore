@@ -273,3 +273,4 @@ $RECYCLE.BIN/
 
 tmp/
 *.db
+debug-config.yml
