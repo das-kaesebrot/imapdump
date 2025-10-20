@@ -188,7 +188,8 @@ class ImapDumper:
         
         os.makedirs(self._dump_folder, exist_ok=True)
         
-        counter = 0
+        written = 0
+        to_write = 0
         skipped = 0
         
         folder_uid_map = {}
@@ -209,31 +210,55 @@ class ImapDumper:
                 folder_uid_map[mail.folder] = {}
                 
             folder_uid_map[mail.folder][str(mail.uid)] = filename
+            to_write += 1
         
         if skipped != len(all_mails):
             self._set_idle(False)
             
-        for folder, mails_in_folder in folder_uid_map.items():
-            self._client.select_folder(folder, readonly=True)
-        
-            for message_id, data in self._client.fetch(
-                messages=mails_in_folder.keys(), data=["RFC822"]
-            ).items():
-                rfc822 = data.get(b"RFC822")
-                filename = mails_in_folder[str(message_id)]
-                
-                with open(filename, mode="wb") as f:
-                    f.write(rfc822)
+        for folder_name, mails_in_folder in folder_uid_map.items():
+            self._client.select_folder(folder_name, readonly=True)
             
-                counter += 1
+            message_ids = list(mails_in_folder.keys())
+            
+            chunks, remainder = divmod(len(mails_in_folder.keys()), self.CHUNKSIZE)
+
+            self._logger.info(
+                f"Writing {len(message_ids)} message(s) from IMAP directory '{folder_name}'"
+            )
+
+            if remainder != 0:
+                chunks += 1
+
+            for chunk in range(chunks):
+                start = chunk * self.CHUNKSIZE
+                end = min((chunk + 1) * self.CHUNKSIZE, len(message_ids))
+
+                ids = message_ids[start:end]
+
+                percentage = (end / len(message_ids)) * 100
+        
+                for message_id, data in self._client.fetch(
+                    messages=ids, data=["RFC822"]
+                ).items():
+                    rfc822 = data.get(b"RFC822")
+                    filename = mails_in_folder[str(message_id)]
+                    
+                    self._logger.debug(f"Writing message {message_id} RFC822 data ({len(rfc822)} byte) to '{filename}'")
+                    
+                    with open(filename, mode="wb") as f:
+                        f.write(rfc822)
+                    written += 1
+                    
+                self._logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
             
             # set modification time to mail timestamp
             os.utime(filename, (mail.date.timestamp(), mail.date.timestamp()))
         
-        if counter > 0:
+        if written > 0:
             self._set_idle(True)
         
         self._logger.info(f"Done writing to filesystem")
+        self._logger.info(f"Dumped {written} message(s) ({skipped} already dumped before)")
 
     def _set_idle(self, idle: bool):
         if idle and not self._is_idle:
