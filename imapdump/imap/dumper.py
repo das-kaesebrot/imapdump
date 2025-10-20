@@ -228,7 +228,7 @@ class ImapDumper:
             if mail.folder not in folder_uid_map.keys():
                 folder_uid_map[mail.folder] = {}
 
-            folder_uid_map[mail.folder][str(mail.uid)] = filename
+            folder_uid_map[mail.folder][str(mail.uid)] = (filename, mail.date)
             to_write += 1
 
         if skipped != len(all_mails):
@@ -260,7 +260,9 @@ class ImapDumper:
                     messages=ids, data=["RFC822"]
                 ).items():
                     rfc822 = data.get(b"RFC822")
-                    filename = mails_in_folder[str(message_id)]
+                    # bruh this is so terrible
+                    filename = mails_in_folder[str(message_id)][0]
+                    mail_date = mails_in_folder[str(message_id)][1]
 
                     logger.debug(
                         f"Writing message {message_id} RFC822 data ({len(rfc822)} chars) to '{filename}'"
@@ -270,10 +272,10 @@ class ImapDumper:
                         written_byte += f.write(rfc822)
                     written += 1
 
-                logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
+                    # set modification time to mail timestamp
+                    os.utime(filename, (mail_date.timestamp(), mail_date.timestamp()))
 
-            # set modification time to mail timestamp
-            os.utime(filename, (mail.date.timestamp(), mail.date.timestamp()))
+                logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
 
         if written > 0:
             self._set_idle(True)
