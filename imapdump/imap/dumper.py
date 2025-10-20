@@ -15,6 +15,8 @@ class ImapDumper:
     _logger: logging.Logger
     _data_service: DataService
     
+    _is_idle: bool = False
+    
     _dump_folder: str
 
     _folder_regex: str
@@ -60,8 +62,9 @@ class ImapDumper:
                 f"Logging in with credentials to IMAP server: '{config.username}'"
             )
             self._client.login(config.username, config.password)
-
+            
         self._set_idle(True)
+        self._is_idle = True
 
     def dump(self):
         self._write_all_messages_to_db()
@@ -196,7 +199,11 @@ class ImapDumper:
             os.utime(filename, (mail.date.timestamp(), mail.date.timestamp()))
 
     def _set_idle(self, idle: bool):
-        if idle:
+        if idle and not self._is_idle:
             self._client.idle()
-        else:
+            self._is_idle = idle
+        elif not idle and self._is_idle:
             self._client.idle_done()
+            self._is_idle = idle
+        else:
+            self._logger.info("Skipped duplicate IDLE call")
