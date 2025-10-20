@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "module": "imapdump.dump",
-            "args": ["-l", "debug", "--config", "config/config.yml"],
+            "args": ["-l", "debug", "--config", "debug-config.yml"],
             "justMyCode": true
         }
     ]
