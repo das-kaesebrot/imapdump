@@ -51,6 +51,8 @@ class ImapDumper:
         self._data_service = DataService(connection_string=connection_string)
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
+        if self._force_dump:
+            self._logger.warning("FORCE DUMP ACTIVATED, DUMP FOLDER AND CACHE WILL BE RECREATED!")
         self._dump_folder = os.path.abspath(os.path.expanduser(config.dump_folder.rstrip("/")))
 
         if config.username and config.password:
