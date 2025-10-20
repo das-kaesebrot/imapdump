@@ -1,21 +1,62 @@
 # imapdump
+[![Upload Python Package](https://github.com/das-kaesebrot/imapdump/actions/workflows/python-publish.yml/badge.svg)](https://github.com/das-kaesebrot/imapdump/actions/workflows/python-publish.yml)
 
-## About
-imapdump is a cli based tool to export imap accounts to a local folder.
+`imapdump` is a cli based tool to export imap accounts to a local folder.
+
+## Installation
+
+Install the module from [PyPI](https://pypi.org/project/imapdump/):
+```bash
+pip install imapdump
+```
+
+## Usage
+Launch the application via the included command `imapdump`.
+
+```bash
+user@machine:~$ imapdump -h
+usage: dump.py [-h] [-l {critical,fatal,error,warn,info,debug}] [--host HOST] [-f DATABASE_FILE] [-p PORT] [-u USERNAME]
+                   [--password PASSWORD] [--encryption-mode {none,ssl,starttls}] [--folder-regex FOLDER_REGEX] [--force-dump]
+                   [--dump-folder DUMP_FOLDER] [--config CONFIG]
+
+Dump IMAP accounts to a local directory
+
+options:
+  -h, --help            show this help message and exit
+  -l, --logging {critical,fatal,error,warn,info,debug}
+                        set the log level (default: info)
+  --host HOST           Hostname of the IMAP server (default: None)
+  -f, --file DATABASE_FILE
+                        Database file (default: None)
+  -p, --port PORT       Port of the IMAP server (default: 993)
+  -u, --username USERNAME
+                        Username for the IMAP account (default: None)
+  --password PASSWORD   Password of the IMAP account (default: None)
+  --encryption-mode {none,ssl,starttls}
+                        IMAP encryption mode (default: ssl)
+  --folder-regex FOLDER_REGEX
+                        Pattern to match against for including folders (default: ^.*$)
+  --force-dump          Force dump all matching messages without checking against existing database (default: False)
+  --dump-folder DUMP_FOLDER
+                        Where to dump .eml files to (default: None)
+  --config CONFIG       Supply a config file (default: None)
+```
 
 ## Configuration
-Edit the default `config.yml`.
+Create a `config.yml`.
 
 Example configuration:
 ```yaml
+host: imap.example.com
+username: user
+password: supers3cr3tp4ssw0rd
+loglevel: info
 dump_folder: /path/to/dump/folder
+```
 
-servers:
-  # A unique key for your imap server config.
-  myhost:
-    host: imap.example.com
-    username: user
-    password: supers3cr3tp4ssw0rd
+Then run the application:
+```bash
+user@machine~$ imapdump -l debug --config config.yml
 ```
 
 ## Open Source License Attribution
