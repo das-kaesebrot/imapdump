@@ -43,7 +43,7 @@ class ImapDumper:
 
         self._logger = logging.getLogger(f"dumper")
 
-        connection_string = "sqlite:///imapdump.db"
+        connection_string = "sqlite:///.imapdump-cache.db"
 
         if config.database_file:
             connection_string = f"sqlite:///{config.database_file}"
