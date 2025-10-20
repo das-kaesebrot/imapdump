@@ -12,6 +12,7 @@ class Mail(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     uid: Mapped[str] = mapped_column()
     folder: Mapped[str] = mapped_column()
+    title: Mapped[str] = mapped_column()
     size: Mapped[int] = mapped_column()
     date: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     modified: Mapped[datetime] = mapped_column(

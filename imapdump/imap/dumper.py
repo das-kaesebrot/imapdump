@@ -148,14 +148,14 @@ class ImapDumper:
                         new_or_updated_messages.append(message_id)
 
                 for message_id, data in self._client.fetch(
-                    messages=new_or_updated_messages, data=["RFC822.SIZE", "INTERNALDATE"]
+                    messages=new_or_updated_messages, data=["RFC822.SIZE", "INTERNALDATE", "BODY[HEADER.FIELDS (SUBJECT)]"]
                 ).items():
                     id = Mail.generate_id(
                         folder_name=folder_name, message_id=message_id
                     )
                     mail_entity = self._data_service.get_or_create_mail_by_id(id)
-
                     mail_entity.size = data.get(b"RFC822.SIZE")
+                    mail_entity.title = data.get(b"BODY[HEADER.FIELDS (SUBJECT)]").decode(errors = "ignore")[9:]
 
                     mail_entity.folder = folder_name
                     mail_entity.uid = message_id
