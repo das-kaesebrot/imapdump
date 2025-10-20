@@ -204,6 +204,7 @@ class ImapDumper:
         os.makedirs(self._dump_folder, exist_ok=True)
 
         written = 0
+        written_byte = 0
         to_write = 0
         skipped = 0
 
@@ -262,11 +263,11 @@ class ImapDumper:
                     filename = mails_in_folder[str(message_id)]
 
                     logger.debug(
-                        f"Writing message {message_id} RFC822 data ({len(rfc822)} byte) to '{filename}'"
+                        f"Writing message {message_id} RFC822 data ({len(rfc822)} chars) to '{filename}'"
                     )
 
                     with open(filename, mode="wb") as f:
-                        f.write(rfc822)
+                        written_byte += f.write(rfc822)
                     written += 1
 
                 logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
@@ -278,7 +279,7 @@ class ImapDumper:
             self._set_idle(True)
 
         logger.info("Done writing to filesystem")
-        logger.info(f"Dumped {written} message(s) ({skipped} already dumped before)")
+        logger.info(f"Dumped {written} message(s) ({written_byte:,} byte) ({skipped} already dumped before)")
 
     def _set_idle(self, idle: bool):
         if idle and not self._is_idle:
