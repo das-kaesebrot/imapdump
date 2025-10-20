@@ -3,6 +3,7 @@ import logging
 import os
 import yamlargparse
 
+from . import __version__
 from .imap.dumper import ImapDumper
 from .enums.imap_encryption_mode import ImapEncryptionMode
 from .config.imap_config import ImapDumpConfig
@@ -99,7 +100,9 @@ def main():
     )
 
     parser.add_argument("--config", action=yamlargparse.ActionConfigFile)
-
+    
+    print(f"\n[imapdump v{__version__}]\n")
+    
     args = parser.parse_args()
 
     logging.basicConfig(
