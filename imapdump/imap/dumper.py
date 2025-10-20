@@ -144,9 +144,8 @@ class ImapDumper:
                         new_or_updated_messages.append(message_id)
 
                 for message_id, data in self._client.fetch(
-                    messages=new_or_updated_messages, data=["RFC822", "RFC822.SIZE", "INTERNALDATE"]
+                    messages=new_or_updated_messages, data=["RFC822.SIZE", "INTERNALDATE"]
                 ).items():
-                    rfc822 = data.get(b"RFC822")
                     id = Mail.generate_id(
                         folder_name=folder_name, message_id=message_id
                     )
@@ -156,7 +155,6 @@ class ImapDumper:
 
                     mail_entity.folder = folder_name
                     mail_entity.uid = message_id
-                    mail_entity.rfc822 = rfc822
                     mail_entity.date = data.get(b"INTERNALDATE")
 
                     messages.append(mail_entity)
