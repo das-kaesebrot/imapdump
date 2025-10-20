@@ -71,7 +71,8 @@ class ImapDumper:
         self._dump_to_folder()
 
     def _write_all_messages_to_db(self) -> dict:
-        self._logger.info(f"Updating cache")
+        logger = self._logger.getChild("cache")
+        logger.info(f"Updating cache")
         # stop idling
         self._set_idle(False)
 
@@ -81,10 +82,10 @@ class ImapDumper:
 
         # filter folders based on regex
         for flags, delim, folder_name in folders:
-            self._logger.debug(f"{flags=}, {delim=}, {folder_name=}")
+            logger.debug(f"{flags=}, {delim=}, {folder_name=}")
 
             if not re.match(self._folder_regex, folder_name):
-                self._logger.info(f"Skipping ignored directory '{folder_name}'")
+                logger.info(f"Skipping ignored directory '{folder_name}'")
                 continue
 
             folder_names.append(folder_name)
@@ -99,12 +100,12 @@ class ImapDumper:
             message_ids = self._client.search()
 
             if len(message_ids) <= 0:
-                self._logger.info(f"Skipping empty directory '{folder_name}'")
+                logger.info(f"Skipping empty directory '{folder_name}'")
                 continue
 
             chunks, remainder = divmod(len(message_ids), self.CHUNKSIZE)
 
-            self._logger.info(
+            logger.info(
                 f"Processing {len(message_ids)} message(s) in directory '{folder_name}'"
             )
 
@@ -163,25 +164,26 @@ class ImapDumper:
 
                     messages.append(mail_entity)
 
-                self._logger.info(f"'{folder_name}' progress: {percentage:.2f}%")
+                logger.info(f"'{folder_name}' progress: {percentage:.2f}%")
 
         self._data_service.save_all_and_commit(messages)
 
         # back to idling
         self._set_idle(True)
         
-        self._logger.info(f"Done updating cache")
-        self._logger.info(f"Found {len(messages)} new or updated message(s) to dump")
+        logger.info(f"Done updating cache")
+        logger.info(f"Found {len(messages)} new or updated message(s) to dump")
         
     def _dump_to_folder(self):
-        self._logger.info(f"Starting writer")
+        logger = self._logger.getChild("writer")
+        logger.info(f"Starting writer")
         if not self._dump_folder:
-            self._logger.warning("No dump folder specified, ignoring folder output!")
+            logger.warning("No dump folder specified, ignoring folder output!")
             return
         
         all_mails = self._data_service.get_all_mails()
         
-        self._logger.info(f"Dumping {len(all_mails)} message(s) to '{self._dump_folder}'")
+        logger.info(f"Dumping {len(all_mails)} message(s) to '{self._dump_folder}'")
         
         if self._force_dump and os.path.isdir(self._dump_folder):
             shutil.rmtree(self._dump_folder)
@@ -222,7 +224,7 @@ class ImapDumper:
             
             chunks, remainder = divmod(len(mails_in_folder.keys()), self.CHUNKSIZE)
 
-            self._logger.info(
+            logger.info(
                 f"Writing {len(message_ids)} message(s) from IMAP directory '{folder_name}'"
             )
 
@@ -243,13 +245,13 @@ class ImapDumper:
                     rfc822 = data.get(b"RFC822")
                     filename = mails_in_folder[str(message_id)]
                     
-                    self._logger.debug(f"Writing message {message_id} RFC822 data ({len(rfc822)} byte) to '{filename}'")
+                    logger.debug(f"Writing message {message_id} RFC822 data ({len(rfc822)} byte) to '{filename}'")
                     
                     with open(filename, mode="wb") as f:
                         f.write(rfc822)
                     written += 1
                     
-                self._logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
+                logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
             
             # set modification time to mail timestamp
             os.utime(filename, (mail.date.timestamp(), mail.date.timestamp()))
@@ -257,8 +259,8 @@ class ImapDumper:
         if written > 0:
             self._set_idle(True)
         
-        self._logger.info(f"Done writing to filesystem")
-        self._logger.info(f"Dumped {written} message(s) ({skipped} already dumped before)")
+        logger.info(f"Done writing to filesystem")
+        logger.info(f"Dumped {written} message(s) ({skipped} already dumped before)")
 
     def _set_idle(self, idle: bool):
         if idle and not self._is_idle:
