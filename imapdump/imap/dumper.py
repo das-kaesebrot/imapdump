@@ -1,3 +1,4 @@
+import glob
 import logging
 import re
 import os
@@ -206,9 +207,15 @@ class ImapDumper:
 
         os.makedirs(self._dump_folder, exist_ok=True)
         
+        all_unknown_files = glob.glob(pathname='**', root_dir=self._dump_folder, recursive=True)
+        
         for empty_folder in empty_folders:
             logger.info(f"Dumping empty folder '{empty_folder}'")
             os.makedirs(os.path.join(self._dump_folder, empty_folder), exist_ok=True)
+            try:
+                all_unknown_files.remove(empty_folder)
+            except ValueError:
+                continue
 
         written = 0
         written_byte = 0
@@ -222,24 +229,43 @@ class ImapDumper:
             if not os.path.isdir(fs_mail_folder):
                 os.makedirs(fs_mail_folder, exist_ok=False)
 
-            filename = os.path.join(
-                fs_mail_folder,
-                f"{mail.id}_{self.replace_trash(mail.title, truncate_length=16)}.eml",
-            )
+            filename = f"{mail.id}_{self.replace_trash(mail.title, truncate_length=16)}.eml"
+            
+            if not self._force_dump:
+                try:
+                    all_unknown_files.remove(os.path.join(mail.folder, filename))
+                except ValueError:
+                    continue
+                
+                if mail.folder in all_unknown_files:
+                    all_unknown_files.remove(mail.folder)
+                
+            full_filename = os.path.join(fs_mail_folder, filename)
 
             # skip file write if not force dumping and the file already exists
-            if os.path.exists(filename) and not self._force_dump:
+            if os.path.exists(full_filename) and not self._force_dump:
                 skipped += 1
                 continue
 
             if mail.folder not in folder_uid_map.keys():
                 folder_uid_map[mail.folder] = {}
 
-            folder_uid_map[mail.folder][str(mail.uid)] = (filename, mail.date)
+            folder_uid_map[mail.folder][str(mail.uid)] = (full_filename, mail.date)
             to_write += 1
 
         if skipped != len(all_mails):
-            self._set_idle(False)
+            self._set_idle(False)        
+            
+        unknown_emls = []
+        unknown_files = []
+        for unknown_file in all_unknown_files:
+            if unknown_file.endswith(".eml"): unknown_emls.append(unknown_file)
+            else: unknown_files.append(unknown_file)
+        
+        if len(unknown_emls) > 0:
+            logger.info(f"Found {len(unknown_emls)} mail files in dump folder '{self._dump_folder}' that are not present on the server:\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_emls)))}")
+        if len(unknown_files) > 0:
+            logger.info(f"Found {len(unknown_files)} unknown files/folders in dump folder '{self._dump_folder}':\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_files)))}")
 
         for folder_name, mails_in_folder in folder_uid_map.items():
             self._client.select_folder(folder_name, readonly=True)
