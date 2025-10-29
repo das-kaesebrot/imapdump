@@ -93,6 +93,8 @@ class ImapDumper:
         folders = self._client.list_folders()
         folder_names = []
         empty_folders = []
+        
+        seen_mails = []
 
         # filter folders based on regex
         for flags, delim, folder_name in folders:
@@ -156,6 +158,8 @@ class ImapDumper:
                                 id, size
                             )
                         )
+                        
+                        if self._mirror: seen_mails.append(id)
 
                         if not create_or_update:
                             continue
@@ -188,6 +192,10 @@ class ImapDumper:
                 logger.info(f"'{folder_name}' progress: {percentage:.2f}%")
 
         self._data_service.save_all_and_commit(messages)
+        
+        if self._mirror:
+            self._data_service.remove_diff(seen_mails)
+            
 
         # back to idling
         self._set_idle(True)

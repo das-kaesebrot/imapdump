@@ -71,6 +71,14 @@ class DataService:
     def save_all_and_commit(self, objects: list):
         self.save_all(objects)
         self.commit()
+        
+    def remove_diff(self, ids: list[str]):
+        """
+        Removes all that messages that are not in the given list from the database
+        """
+        delete_statement = select(Mail).where(Mail.id.not_in(ids))
+        self.__session.execute(delete_statement)
+        self.commit()
 
     def save(self, object):
         self.__session.add(object)
