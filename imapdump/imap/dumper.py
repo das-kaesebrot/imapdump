@@ -23,6 +23,7 @@ class ImapDumper:
     _folder_regex: str
 
     _force_dump: bool = True
+    _mirror: bool = False
 
     CHUNKSIZE: int = 1000
 
@@ -43,6 +44,7 @@ class ImapDumper:
 
         self._folder_regex = config.folder_regex
         self._force_dump = config.force_dump
+        self._mirror = config.mirror
 
         self._logger = logging.getLogger(__name__)
 
@@ -53,6 +55,10 @@ class ImapDumper:
         if self._force_dump:
             self._logger.info(
                 "FORCE DUMP ACTIVATED, DUMP FOLDER AND CACHE WILL BE RECREATED!"
+            )
+        elif self._mirror:
+            self._logger.info(
+                "Mirror mode activated, unknown files/folders in output folder will be removed"
             )
 
         self._data_service = DataService(
@@ -264,8 +270,23 @@ class ImapDumper:
         
         if len(unknown_emls) > 0:
             logger.info(f"Found {len(unknown_emls)} mail files in dump folder '{self._dump_folder}' that are not present on the server:\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_emls)))}")
+            if self._mirror:
+                for unknown_eml in unknown_emls:
+                    logger.info(f"Removing unknown file '{unknown_eml}'")
+                    os.unlink(unknown_eml)
+            
         if len(unknown_files) > 0:
             logger.info(f"Found {len(unknown_files)} unknown files/folders in dump folder '{self._dump_folder}':\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_files)))}")
+            
+            if self._mirror:
+                for unknown_file in unknown_files:
+                    if os.path.isfile(unknown_file):
+                        logger.info(f"Removing unknown file '{unknown_file}'")
+                        os.unlink(unknown_file)
+                    else:
+                        logger.info(f"Removing unknown folder '{unknown_file}'")
+                        shutil.rmtree(unknown_file, ignore_errors=True)
+                        
 
         for folder_name, mails_in_folder in folder_uid_map.items():
             self._client.select_folder(folder_name, readonly=True)

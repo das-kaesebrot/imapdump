@@ -93,6 +93,12 @@ def main():
     )
 
     parser.add_argument(
+        "--mirror",
+        help="Remove all unknown files and folders from output folder and exactly mirror server state",
+        action="store_true",
+    )
+
+    parser.add_argument(
         "--dump-folder",
         help="Where to dump .eml files to",
         type=str,
