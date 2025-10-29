@@ -7,12 +7,12 @@
 
 Install the module from [PyPI](https://pypi.org/project/imapdump/):
 ```bash
-pip install imapdump
+$ pip install imapdump
 ```
 
 or simply run it using [`uvx`](https://docs.astral.sh/uv/guides/tools/) (recommended):
 ```bash
-uvx imapdump [args...]
+$ uvx imapdump [args...]
 ```
 
 ## Usage
@@ -47,6 +47,7 @@ options:
   --folder-regex FOLDER_REGEX
                         Pattern to match against for including folders (default: ^.*$)
   --force-dump          Force dump all matching messages without checking against existing database (default: False)
+  --mirror              Remove all unknown files and folders from output folder and exactly mirror server state (default: False)
   --dump-folder DUMP_FOLDER
                         Where to dump .eml files to (default: None)
   --config CONFIG       Supply a config file (default: None)
@@ -62,11 +63,12 @@ username: user
 password: supers3cr3tp4ssw0rd
 loglevel: info
 dump_folder: /path/to/dump/folder
+mirror: true
 ```
 
 Then run the application:
 ```bash
-user@machine:~$ imapdump -l debug --config config.yml
+$ imapdump -l debug --config config.yml
 ```
 
 ## Open Source License Attribution
