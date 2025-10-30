@@ -26,11 +26,12 @@ def main():
     parser.add_argument(
         "-l",
         "--logging",
-        help="set the log level",
-        dest="loglevel",
+        help="Console log level",
+        dest="console_log_level",
         type=str,
         choices=available_levels,
-        default=ImapDumpConfigDefaults.LOGLEVEL,
+        default=ImapDumpConfigDefaults.CONSOLE_LOG_LEVEL,
+    )
     )
 
     parser.add_argument(
@@ -127,7 +128,7 @@ def main():
 
     logging.basicConfig(
         format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
-        level=args.loglevel.upper(),
+        level=args.console_log_level.upper(),
     )
     logger = logging.getLogger("imapdump.main")
     logger.info(f"Running version {__version__}]")
