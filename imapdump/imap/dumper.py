@@ -5,7 +5,7 @@ import os
 import shutil
 
 from ..db.data_service import DataService
-from ..config.imap_config import ImapDumpConfig
+from ..config.imapdump_config import ImapDumpConfig
 from ..enums.imap_encryption_mode import ImapEncryptionMode
 from ..models.mail import Mail
 from imapclient import IMAPClient

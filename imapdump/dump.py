@@ -6,7 +6,7 @@ import yamlargparse
 from . import __version__
 from .imap.dumper import ImapDumper
 from .enums.imap_encryption_mode import ImapEncryptionMode
-from .config.imap_config import ImapDumpConfig
+from .config.imapdump_config import ImapDumpConfig
 
 
 def main():
