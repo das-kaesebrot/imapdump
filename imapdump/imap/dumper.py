@@ -301,7 +301,7 @@ class ImapDumper:
             if self._mirror:
                 for unknown_eml in unknown_emls:
                     logger.info(f"Removing unknown file '{unknown_eml}'")
-                    if not self._dry_run: os.unlink(unknown_eml)
+                    if not self._dry_run: os.unlink(os.path.join(self._dump_folder, unknown_eml))
             
         if len(unknown_files) > 0:
             unknown_files_string = '\n'.join(list(map(lambda x: f"'{x}'", unknown_files)))
@@ -311,10 +311,10 @@ class ImapDumper:
                 for unknown_file in unknown_files:
                     if os.path.isfile(unknown_file):
                         logger.info(f"Removing unknown file '{unknown_file}'")
-                        if not self._dry_run: os.unlink(unknown_file)
+                        if not self._dry_run: os.unlink(os.path.join(self._dump_folder, unknown_file))
                     else:
                         logger.info(f"Removing unknown folder '{unknown_file}'")
-                        if not self._dry_run: shutil.rmtree(unknown_file, ignore_errors=True)
+                        if not self._dry_run: shutil.rmtree(os.path.join(self._dump_folder, unknown_file), ignore_errors=True)
                         
 
         for folder_name, mails_in_folder in folder_uid_map.items():
