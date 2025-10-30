@@ -16,10 +16,9 @@ def main():
     available_levels.remove(logging.getLevelName(logging.NOTSET).lower())
     available_levels.remove(logging.getLevelName(logging.WARNING).lower())
 
-    parser = yamlargparse.ArgumentParser(
+    parser = argparse.ArgumentParser(
         prog="imapdump",
         description="Dump IMAP accounts to a local directory",
-        error_handler=yamlargparse.usage_and_exit_error_handler,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -115,9 +114,14 @@ def main():
     )
 
     parser.add_argument(
-        "--config", help="Supply a config file", action=yamlargparse.ActionConfigFile
+        "-c",
+        "--config",
+        dest="additional_config_files",
+        help="Supply a config file",
+        type=str,
+        action="append",
     )
-
+    
     args = parser.parse_args()
 
     logging.basicConfig(
