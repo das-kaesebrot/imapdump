@@ -1,7 +1,10 @@
 import argparse
+from dataclasses import asdict
+import json
 import logging
 import os
-import yamlargparse
+import yaml
+from dacite import from_dict
 
 from . import __version__
 from .imap.dumper import ImapDumper
@@ -147,6 +150,20 @@ def main():
     )
     
     args = parser.parse_args()
+    
+    if args.additional_config_files is not None:
+        additional_args = []
+        for config_filename in args.additional_config_files:
+            with open(config_filename, 'r') as f:
+                config = yaml.safe_load(f)
+                config_parsed = from_dict(data_class=ImapDumpFileConfig, data=config)
+                for key, value in asdict(config_parsed).items():
+                    additional_args.extend([f"--{key.replace('_', '-')}", str(value)])
+
+        # Reload arguments to override config file values with command line values
+        args = parser.parse_args(additional_args)
+        args = parser.parse_args(namespace=args)
+    
 
     logging.basicConfig(
         format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
