@@ -229,7 +229,7 @@ class ImapDumper:
             try:
                 all_unknown_files.remove(empty_folder)
             except ValueError:
-                continue
+                pass
 
         written = 0
         written_byte = 0
@@ -249,7 +249,7 @@ class ImapDumper:
                 try:
                     all_unknown_files.remove(os.path.join(mail.folder, filename))
                 except ValueError:
-                    continue
+                    pass
                 
                 if mail.folder in all_unknown_files:
                     all_unknown_files.remove(mail.folder)
