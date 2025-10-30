@@ -4,6 +4,9 @@ from ..enums.imap_encryption_mode import ImapEncryptionMode
 
 class ImapDumpConfigDefaults:
     CONSOLE_LOG_LEVEL: str = logging.getLevelName(logging.INFO).lower()
+    USE_LOGFILE: bool = False
+    LOGFILE_FOLDER: str = "."
+    LOGFILE_LEVEL: str = logging.getLevelName(logging.DEBUG).lower()
     PORT: int = 993
     USERNAME: str = None
     PASSWORD: str = None
