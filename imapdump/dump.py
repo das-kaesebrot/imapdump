@@ -172,7 +172,10 @@ def main():
     logger = logging.getLogger("imapdump.main")
     logger.info(f"Running version {__version__}")
     logger.debug(f"Running as UID {os.getuid()}")
-
+    
+    args_dict = vars(args)    
+    logger.debug(f"Using config:\n{json.dumps(args_dict, indent=4)}")
+    
     config = ImapDumpConfig(**vars(args))
 
     try:
