@@ -32,6 +32,26 @@ def main():
         choices=available_levels,
         default=ImapDumpConfigDefaults.CONSOLE_LOG_LEVEL,
     )
+    
+    parser.add_argument(
+        "--use-logfile",
+        help="Write log files",
+        action="store_true",
+    )
+
+    parser.add_argument(
+        "--logfile-folder",
+        help="Folder for log files",
+        type=str,
+        default=ImapDumpConfigDefaults.LOGFILE_FOLDER
+    )
+
+    parser.add_argument(
+        "--logfile-level",
+        help="Log files log level",
+        type=str,
+        choices=available_levels,
+        default=ImapDumpConfigDefaults.LOGFILE_LEVEL,
     )
 
     parser.add_argument(
