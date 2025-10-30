@@ -31,7 +31,7 @@ class DataService:
 
         assert self.__engine is not None
         assert self.__session is not None
-        
+
     def close_db(self):
         self._logger.info("Shutting down")
         self.__session.invalidate()
@@ -40,7 +40,7 @@ class DataService:
     def get_all_mails(self) -> list[Mail]:
         select_statement = select(Mail)
         return self.__session.scalars(select_statement).all()
-    
+
     def get_all_mail_folders(self) -> list[str]:
         select_statement = select(Mail.folder).distinct()
         return self.__session.scalars(select_statement).all()
@@ -76,7 +76,7 @@ class DataService:
     def save_all_and_commit(self, objects: list):
         self.save_all(objects)
         self.commit()
-        
+
     def remove_diff(self, ids: list[str]):
         """
         Removes all that messages that are not in the given list from the database

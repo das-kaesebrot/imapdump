@@ -37,7 +37,7 @@ def main():
         choices=available_levels,
         default=ImapDumpConfigDefaults.CONSOLE_LOG_LEVEL,
     )
-    
+
     parser.add_argument(
         "--use-logfile",
         help="Write log files",
@@ -48,7 +48,7 @@ def main():
         "--logfile-folder",
         help="Folder for log files",
         type=str,
-        default=ImapDumpConfigDefaults.LOGFILE_FOLDER
+        default=ImapDumpConfigDefaults.LOGFILE_FOLDER,
     )
 
     parser.add_argument(
@@ -112,7 +112,7 @@ def main():
         type=str,
         default=ImapDumpConfigDefaults.FOLDER_REGEX,
     )
-    
+
     group_mode = parser.add_mutually_exclusive_group()
 
     group_mode.add_argument(
@@ -148,13 +148,13 @@ def main():
         type=str,
         action="append",
     )
-    
+
     args = parser.parse_args()
-    
+
     if args.additional_config_files is not None:
         additional_args = []
         for config_filename in args.additional_config_files:
-            with open(config_filename, 'r') as f:
+            with open(config_filename, "r") as f:
                 config = yaml.safe_load(f)
                 config_parsed = from_dict(data_class=ImapDumpFileConfig, data=config)
                 for key, value in asdict(config_parsed).items():
@@ -163,7 +163,6 @@ def main():
         # Reload arguments to override config file values with command line values
         args = parser.parse_args(additional_args)
         args = parser.parse_args(namespace=args)
-    
 
     logging.basicConfig(
         format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
@@ -172,14 +171,19 @@ def main():
     logger = logging.getLogger("imapdump.main")
     logger.info(f"Running version {__version__}")
     logger.debug(f"Running as UID {os.getuid()}")
-    
-    args_dict = vars(args)    
+
+    args_dict = vars(args)
     logger.debug(f"Using config:\n{json.dumps(args_dict, indent=4)}")
-    
-    ignored_keys = ["additional_config_files", "use_logfile", "logfile_level", "logfile_folder"]
+
+    ignored_keys = [
+        "additional_config_files",
+        "use_logfile",
+        "logfile_level",
+        "logfile_folder",
+    ]
     for ignored_key in ignored_keys:
         del args_dict[ignored_key]
-    
+
     config = ImapDumpConfig(**vars(args))
 
     try:

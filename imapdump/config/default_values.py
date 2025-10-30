@@ -17,4 +17,3 @@ class ImapDumpConfigDefaults:
     DUMP_FOLDER: str = "dumped_mails"
     MIRROR: bool = False
     DRY_RUN: bool = False
-    

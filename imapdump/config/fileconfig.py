@@ -13,4 +13,3 @@ class ImapDumpFileConfig:
     encryption_mode: ImapEncryptionMode = ImapDumpConfigDefaults.ENCRYPTION_MODE
     folder_regex: str = ImapDumpConfigDefaults.FOLDER_REGEX
     dump_folder: str = ImapDumpConfigDefaults.DUMP_FOLDER
-    
