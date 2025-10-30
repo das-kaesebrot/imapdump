@@ -28,7 +28,6 @@ class ImapDumper:
     _dry_run: bool = False
     
     _db_file: str = None
-    _db_bakfile: str = None
 
     CHUNKSIZE: int = 1000
 
@@ -59,8 +58,10 @@ class ImapDumper:
             self._db_file = config.database_file
             
         if self._dry_run:
-            self._db_bakfile = f"{self._db_file}.bak.{randint(100,999)}"
-            shutil.copy2(self._db_file, self._db_bakfile)
+            dry_run_db_file = f"{self._db_file}.dryrun.{randint(100,999)}"
+            shutil.copy2(self._db_file, dry_run_db_file)
+            self._db_file = dry_run_db_file
+            
             self._logger.info(
                 "Dry run mode activated, nothing will actually be changed"
             )
@@ -98,7 +99,7 @@ class ImapDumper:
         self._data_service.close_db()
         
         if self._dry_run:
-            shutil.move(self._db_bakfile, self._db_file)
+            os.unlink(self._db_file)
 
     def _write_all_messages_to_db(self) -> dict:
         logger = self._logger.getChild("cache")
