@@ -9,7 +9,7 @@ class ImapDumpFileConfig:
     port: int = ImapDumpConfigDefaults.PORT
     username: str = ImapDumpConfigDefaults.USERNAME
     password: str = ImapDumpConfigDefaults.PASSWORD
-    database_file: str = ImapDumpConfigDefaults.DATABASE_FILE
+    file: str = ImapDumpConfigDefaults.DATABASE_FILE
     encryption_mode: ImapEncryptionMode = ImapDumpConfigDefaults.ENCRYPTION_MODE
     folder_regex: str = ImapDumpConfigDefaults.FOLDER_REGEX
     dump_folder: str = ImapDumpConfigDefaults.DUMP_FOLDER
