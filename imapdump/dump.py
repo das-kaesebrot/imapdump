@@ -176,6 +176,10 @@ def main():
     args_dict = vars(args)    
     logger.debug(f"Using config:\n{json.dumps(args_dict, indent=4)}")
     
+    ignored_keys = ["additional_config_files", "use_logfile", "logfile_level", "logfile_folder"]
+    for ignored_key in ignored_keys:
+        del args_dict[ignored_key]
+    
     config = ImapDumpConfig(**vars(args))
 
     try:
