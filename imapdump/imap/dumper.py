@@ -296,14 +296,16 @@ class ImapDumper:
             else: unknown_files.append(unknown_file)
         
         if len(unknown_emls) > 0:
-            logger.info(f"Found {len(unknown_emls)} mail files in dump folder '{self._dump_folder}' that are not present on the server:\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_emls)))}")
+            unknown_emls_string = '\n'.join(list(map(lambda x: f"'{x}'", unknown_emls)))            
+            logger.info(f"Found {len(unknown_emls)} mail files in dump folder '{self._dump_folder}' that are not present on the server:\n{unknown_emls_string}")
             if self._mirror:
                 for unknown_eml in unknown_emls:
                     logger.info(f"Removing unknown file '{unknown_eml}'")
                     if not self._dry_run: os.unlink(unknown_eml)
             
         if len(unknown_files) > 0:
-            logger.info(f"Found {len(unknown_files)} unknown files/folders in dump folder '{self._dump_folder}':\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_files)))}")
+            unknown_files_string = '\n'.join(list(map(lambda x: f"'{x}'", unknown_files)))
+            logger.info(f"Found {len(unknown_files)} unknown files/folders in dump folder '{self._dump_folder}':\n{unknown_files_string}")
             
             if self._mirror:
                 for unknown_file in unknown_files:
