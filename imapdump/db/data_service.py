@@ -81,7 +81,7 @@ class DataService:
         """
         Removes all that messages that are not in the given list from the database
         """
-        delete_statement = select(Mail).where(Mail.id.not_in(ids))
+        delete_statement = delete(Mail).where(Mail.id.not_in(ids))
         self.__session.execute(delete_statement)
         self.commit()
 
