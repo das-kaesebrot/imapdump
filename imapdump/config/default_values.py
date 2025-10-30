@@ -10,7 +10,7 @@ class ImapDumpConfigDefaults:
     DATABASE_FILE: str = ".imapdump-cache.db"
     ENCRYPTION_MODE: ImapEncryptionMode = ImapEncryptionMode.SSL
     FOLDER_REGEX: str = "^.*$"
-    FORCE_DUMP: bool = False
+    RECREATE: bool = False
     DUMP_FOLDER: str = "dumped_mails"
     MIRROR: bool = False
     DRY_RUN: bool = False

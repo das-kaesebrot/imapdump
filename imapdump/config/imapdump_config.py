@@ -17,7 +17,7 @@ class ImapDumpConfig:
     dump_folder: str = ImapDumpConfigDefaults.DUMP_FOLDER
     
     # flags
-    force_dump: bool = ImapDumpConfigDefaults.FORCE_DUMP
+    recreate: bool = ImapDumpConfigDefaults.RECREATE
     mirror: bool = ImapDumpConfigDefaults.MIRROR
     dry_run: bool = ImapDumpConfigDefaults.DRY_RUN
     

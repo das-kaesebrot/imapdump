@@ -23,7 +23,7 @@ class ImapDumper:
 
     _folder_regex: str
 
-    _force_dump: bool
+    _recreate: bool
     _mirror: bool
     _dry_run: bool
     
@@ -47,7 +47,7 @@ class ImapDumper:
             )
 
         self._folder_regex = config.folder_regex
-        self._force_dump = config.force_dump
+        self._recreate = config.recreate
         self._mirror = config.mirror
         self._dry_run = config.dry_run
 
@@ -63,9 +63,9 @@ class ImapDumper:
                 "Dry run mode activated, nothing will actually be changed"
             )
 
-        if self._force_dump:
+        if self._recreate:
             self._logger.info(
-                "FORCE DUMP ACTIVATED, DUMP FOLDER AND CACHE WILL BE RECREATED!"
+                "RECREATE MODE ACTIVATED, DUMP FOLDER AND CACHE WILL BE RECREATED!"
             )
         elif self._mirror:
             self._logger.info(
@@ -153,7 +153,7 @@ class ImapDumper:
 
                 new_or_updated_messages = []
 
-                if self._force_dump:
+                if self._recreate:
                     # don't check against database if force dumping
                     self._data_service.remove_all_mails()  # clean the cache
                     new_or_updated_messages = ids
@@ -228,7 +228,7 @@ class ImapDumper:
 
         logger.info(f"Dumping {len(all_mails)} message(s) to '{self._dump_folder}'")
 
-        if self._force_dump and os.path.isdir(self._dump_folder) and not self._dry_run:
+        if self._recreate and os.path.isdir(self._dump_folder) and not self._dry_run:
             shutil.rmtree(self._dump_folder)
             
         if not self._dry_run:
@@ -259,7 +259,7 @@ class ImapDumper:
 
             filename = f"{mail.id}_{self.replace_trash(mail.title, truncate_length=16)}.eml"
             
-            if not self._force_dump:
+            if not self._recreate:
                 try:
                     all_unknown_files.remove(os.path.join(mail.folder, filename))
                 except ValueError:
@@ -271,7 +271,7 @@ class ImapDumper:
             full_filename = os.path.join(fs_mail_folder, filename)
 
             # skip file write if not force dumping and the file already exists
-            if os.path.exists(full_filename) and not self._force_dump:
+            if os.path.exists(full_filename) and not self._recreate:
                 skipped += 1
                 continue
 

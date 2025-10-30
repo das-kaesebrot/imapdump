@@ -90,8 +90,8 @@ def main():
     group_mode = parser.add_mutually_exclusive_group()
 
     group_mode.add_argument(
-        "--force-dump",
-        help="Force dump all matching messages without checking against existing database",
+        "--recreate",
+        help="Recreate cache and recreate the dump directory (destructive, this will delete dumped files!), then dump all matching messages",
         action="store_true",
     )
 
