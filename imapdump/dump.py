@@ -7,6 +7,8 @@ from . import __version__
 from .imap.dumper import ImapDumper
 from .enums.imap_encryption_mode import ImapEncryptionMode
 from .config.imapdump_config import ImapDumpConfig
+from .config.fileconfig import ImapDumpFileConfig
+from .config.default_values import ImapDumpConfigDefaults
 
 
 def main():
