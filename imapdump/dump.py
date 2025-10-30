@@ -86,14 +86,16 @@ def main():
         type=str,
         default=ImapDumpConfigDefaults.FOLDER_REGEX,
     )
+    
+    group_mode = parser.add_mutually_exclusive_group()
 
-    parser.add_argument(
+    group_mode.add_argument(
         "--force-dump",
         help="Force dump all matching messages without checking against existing database",
         action="store_true",
     )
 
-    parser.add_argument(
+    group_mode.add_argument(
         "--mirror",
         help="Remove all unknown files and folders from output folder and exactly mirror server state",
         action="store_true",
