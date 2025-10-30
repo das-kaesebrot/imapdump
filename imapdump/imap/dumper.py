@@ -23,11 +23,11 @@ class ImapDumper:
 
     _folder_regex: str
 
-    _force_dump: bool = True
-    _mirror: bool = False
-    _dry_run: bool = False
+    _force_dump: bool
+    _mirror: bool
+    _dry_run: bool
     
-    _db_file: str = None
+    _db_file: str
 
     CHUNKSIZE: int = 1000
 
@@ -52,10 +52,7 @@ class ImapDumper:
         self._dry_run = config.dry_run
 
         self._logger = logging.getLogger(__name__)
-
-        self._db_file = ".imapdump-cache.db"
-        if config.database_file:
-            self._db_file = config.database_file
+        self._db_file = config.database_file
             
         if self._dry_run:
             dry_run_db_file = f"{self._db_file}.dryrun.{randint(100,999)}"

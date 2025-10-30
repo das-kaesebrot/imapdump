@@ -1,0 +1,17 @@
+import logging
+from ..enums.imap_encryption_mode import ImapEncryptionMode
+
+
+class ImapDumpConfigDefaults:
+    LOGLEVEL: str = logging.getLevelName(logging.INFO).lower()
+    PORT: int = 993
+    USERNAME: str = None
+    PASSWORD: str = None
+    DATABASE_FILE: str = ".imapdump-cache.db"
+    ENCRYPTION_MODE: ImapEncryptionMode = ImapEncryptionMode.SSL
+    FOLDER_REGEX: str = "^.*$"
+    FORCE_DUMP: bool = False
+    DUMP_FOLDER: str = "dumped_mails"
+    MIRROR: bool = False
+    DRY_RUN: bool = False
+    

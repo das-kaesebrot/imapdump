@@ -30,7 +30,7 @@ def main():
         dest="loglevel",
         type=str,
         choices=available_levels,
-        default=logging.getLevelName(logging.INFO).lower(),
+        default=ImapDumpConfigDefaults.LOGLEVEL,
     )
 
     parser.add_argument(
@@ -45,7 +45,7 @@ def main():
         help="Database file",
         type=str,
         dest="database_file",
-        default=None,
+        default=ImapDumpConfigDefaults.DATABASE_FILE,
     )
 
     parser.add_argument(
@@ -53,7 +53,7 @@ def main():
         "--port",
         help="Port of the IMAP server",
         type=int,
-        default=993,
+        default=ImapDumpConfigDefaults.PORT,
     )
 
     parser.add_argument(
@@ -61,14 +61,14 @@ def main():
         "--username",
         help="Username for the IMAP account",
         type=str,
-        default=None,
+        default=ImapDumpConfigDefaults.USERNAME,
     )
 
     parser.add_argument(
         "--password",
         help="Password of the IMAP account",
         type=str,
-        default=None,
+        default=ImapDumpConfigDefaults.PASSWORD,
     )
 
     parser.add_argument(
@@ -77,14 +77,14 @@ def main():
         type=ImapEncryptionMode,
         required=False,
         choices=ImapEncryptionMode.list(),
-        default=ImapEncryptionMode.SSL,
+        default=ImapDumpConfigDefaults.ENCRYPTION_MODE,
     )
 
     parser.add_argument(
         "--folder-regex",
         help="Pattern to match against for including folders",
         type=str,
-        default="^.*$",
+        default=ImapDumpConfigDefaults.FOLDER_REGEX,
     )
 
     parser.add_argument(
@@ -109,7 +109,7 @@ def main():
         "--dump-folder",
         help="Where to dump .eml files to",
         type=str,
-        default=None,
+        default=ImapDumpConfigDefaults.DUMP_FOLDER,
     )
 
     parser.add_argument(
