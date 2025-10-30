@@ -53,6 +53,17 @@ class ImapDumper:
 
         self._logger = logging.getLogger(__name__)
         self._db_file = config.database_file
+        
+        self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
+        self._dump_folder = os.path.abspath(
+            os.path.expanduser(config.dump_folder.rstrip("/"))
+        )
+
+        if config.username and config.password:
+            self._logger.debug(
+                f"Logging in with credentials to IMAP server: '{config.username}'"
+            )
+            self._client.login(config.username, config.password)
             
         if self._dry_run:
             dry_run_db_file = f"{self._db_file}.dryrun.{randint(100,999)}"
@@ -73,19 +84,8 @@ class ImapDumper:
             )
 
         self._data_service = DataService(
-            connection_string=f"sqlite:///{self._db_file}", recreate=self._force_dump
+            connection_string=f"sqlite:///{self._db_file}", recreate=self._recreate
         )
-
-        self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
-        self._dump_folder = os.path.abspath(
-            os.path.expanduser(config.dump_folder.rstrip("/"))
-        )
-
-        if config.username and config.password:
-            self._logger.debug(
-                f"Logging in with credentials to IMAP server: '{config.username}'"
-            )
-            self._client.login(config.username, config.password)
 
         self._set_idle(True)
         self._is_idle = True
