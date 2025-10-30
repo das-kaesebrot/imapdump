@@ -131,7 +131,7 @@ def main():
         level=args.console_log_level.upper(),
     )
     logger = logging.getLogger("imapdump.main")
-    logger.info(f"Running version {__version__}]")
+    logger.info(f"Running version {__version__}")
     logger.debug(f"Running as UID {os.getuid()}")
 
     config = ImapDumpConfig(**vars(args))
