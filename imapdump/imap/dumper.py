@@ -24,6 +24,7 @@ class ImapDumper:
 
     _force_dump: bool = True
     _mirror: bool = False
+    _dry_run: bool = False
 
     CHUNKSIZE: int = 1000
 
@@ -45,12 +46,18 @@ class ImapDumper:
         self._folder_regex = config.folder_regex
         self._force_dump = config.force_dump
         self._mirror = config.mirror
+        self._dry_run = config.dry_run
 
         self._logger = logging.getLogger(__name__)
 
         database_file = ".imapdump-cache.db"
         if config.database_file:
             database_file = config.database_file
+            
+        if self._dry_run:
+            self._logger.info(
+                "Dry run mode activated, nothing will actually be changed"
+            )
 
         if self._force_dump:
             self._logger.info(
@@ -152,6 +159,10 @@ class ImapDumper:
                             folder_name=folder_name, message_id=message_id
                         )
                         size = data.get(b"RFC822.SIZE")
+                        
+                        # stupid hack so files recognized during dry runs are always created when dumper is being executed for real
+                        if self._dry_run:
+                            size += 1
 
                         create_or_update = (
                             self._data_service.mail_has_to_be_created_or_updated(
@@ -216,16 +227,18 @@ class ImapDumper:
 
         logger.info(f"Dumping {len(all_mails)} message(s) to '{self._dump_folder}'")
 
-        if self._force_dump and os.path.isdir(self._dump_folder):
+        if self._force_dump and os.path.isdir(self._dump_folder) and not self._dry_run:
             shutil.rmtree(self._dump_folder)
-
-        os.makedirs(self._dump_folder, exist_ok=True)
+            
+        if not self._dry_run:
+            os.makedirs(self._dump_folder, exist_ok=True)
         
         all_unknown_files = glob.glob(pathname='**', root_dir=self._dump_folder, recursive=True)
         
         for empty_folder in empty_folders:
             logger.info(f"Dumping empty folder '{empty_folder}'")
-            os.makedirs(os.path.join(self._dump_folder, empty_folder), exist_ok=True)
+            if not self._dry_run:
+                os.makedirs(os.path.join(self._dump_folder, empty_folder), exist_ok=True)
             try:
                 all_unknown_files.remove(empty_folder)
             except ValueError:
@@ -240,7 +253,7 @@ class ImapDumper:
 
         for mail in all_mails:
             fs_mail_folder = os.path.join(self._dump_folder, mail.folder)
-            if not os.path.isdir(fs_mail_folder):
+            if not os.path.isdir(fs_mail_folder) and not self._dry_run:
                 os.makedirs(fs_mail_folder, exist_ok=False)
 
             filename = f"{mail.id}_{self.replace_trash(mail.title, truncate_length=16)}.eml"
@@ -281,7 +294,7 @@ class ImapDumper:
             if self._mirror:
                 for unknown_eml in unknown_emls:
                     logger.info(f"Removing unknown file '{unknown_eml}'")
-                    os.unlink(unknown_eml)
+                    if not self._dry_run: os.unlink(unknown_eml)
             
         if len(unknown_files) > 0:
             logger.info(f"Found {len(unknown_files)} unknown files/folders in dump folder '{self._dump_folder}':\n{'\n'.join(list(map(lambda x: f'\'{x}\'', unknown_files)))}")
@@ -290,10 +303,10 @@ class ImapDumper:
                 for unknown_file in unknown_files:
                     if os.path.isfile(unknown_file):
                         logger.info(f"Removing unknown file '{unknown_file}'")
-                        os.unlink(unknown_file)
+                        if not self._dry_run: os.unlink(unknown_file)
                     else:
                         logger.info(f"Removing unknown folder '{unknown_file}'")
-                        shutil.rmtree(unknown_file, ignore_errors=True)
+                        if not self._dry_run: shutil.rmtree(unknown_file, ignore_errors=True)
                         
 
         for folder_name, mails_in_folder in folder_uid_map.items():
@@ -329,13 +342,16 @@ class ImapDumper:
                     logger.debug(
                         f"Writing message {message_id} RFC822 data ({len(rfc822)} chars) to '{filename}'"
                     )
-
-                    with open(filename, mode="wb") as f:
-                        written_byte += f.write(rfc822)
+                    
+                    if not self._dry_run:
+                        with open(filename, mode="wb") as f:
+                            written_byte += f.write(rfc822)
+                    
                     written += 1
 
                     # set modification time to mail timestamp
-                    os.utime(filename, (mail_date.timestamp(), mail_date.timestamp()))
+                    if not self._dry_run:
+                        os.utime(filename, (mail_date.timestamp(), mail_date.timestamp()))
 
                 logger.info(f"Writing '{folder_name}' progress: {percentage:.2f}%")
 
@@ -343,7 +359,7 @@ class ImapDumper:
             self._set_idle(True)
 
         logger.info("Done writing to filesystem")
-        logger.info(f"Dumped {written} message(s) ({written_byte:,} byte) ({skipped} already dumped before)")
+        logger.info(f"Dumped {written} message(s) {'(SIMULATED)' if self._dry_run else ''} ({written_byte:,} byte) ({skipped} already dumped before)")
 
     def _set_idle(self, idle: bool):
         if idle and not self._is_idle:

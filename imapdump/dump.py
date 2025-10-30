@@ -99,6 +99,12 @@ def main():
     )
 
     parser.add_argument(
+        "--dry-run",
+        help="Only simulate what would be done, don't actually write/change anything",
+        action="store_true",
+    )
+
+    parser.add_argument(
         "--dump-folder",
         help="Where to dump .eml files to",
         type=str,

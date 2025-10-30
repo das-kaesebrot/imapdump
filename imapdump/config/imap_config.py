@@ -16,4 +16,5 @@ class ImapDumpConfig:
     force_dump: bool = False
     dump_folder: str = None
     mirror: bool = False
+    dry_run: bool = False
     
