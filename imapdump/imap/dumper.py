@@ -223,9 +223,6 @@ class ImapDumper:
     def _dump_to_folder(self, empty_folders: list[str]):
         logger = self._logger.getChild("writer")
         logger.info("Starting writer")
-        if not self._dump_folder:
-            logger.warning("No dump folder specified, ignoring folder output!")
-            return
 
         all_mails = self._data_service.get_all_mails()
 
