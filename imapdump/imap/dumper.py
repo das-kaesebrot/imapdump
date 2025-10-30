@@ -9,6 +9,7 @@ from ..config.imap_config import ImapDumpConfig
 from ..enums.imap_encryption_mode import ImapEncryptionMode
 from ..models.mail import Mail
 from imapclient import IMAPClient
+from random import randint
 
 
 class ImapDumper:
@@ -25,6 +26,9 @@ class ImapDumper:
     _force_dump: bool = True
     _mirror: bool = False
     _dry_run: bool = False
+    
+    _db_file: str = None
+    _db_bakfile: str = None
 
     CHUNKSIZE: int = 1000
 
@@ -50,11 +54,13 @@ class ImapDumper:
 
         self._logger = logging.getLogger(__name__)
 
-        database_file = ".imapdump-cache.db"
+        self._db_file = ".imapdump-cache.db"
         if config.database_file:
-            database_file = config.database_file
+            self._db_file = config.database_file
             
         if self._dry_run:
+            self._db_bakfile = f"{self._db_file}.bak.{randint(100,999)}"
+            shutil.copy2(self._db_file, self._db_bakfile)
             self._logger.info(
                 "Dry run mode activated, nothing will actually be changed"
             )
@@ -69,7 +75,7 @@ class ImapDumper:
             )
 
         self._data_service = DataService(
-            connection_string=f"sqlite:///{database_file}", recreate=self._force_dump
+            connection_string=f"sqlite:///{self._db_file}", recreate=self._force_dump
         )
 
         self._logger.info(f"Dumping '{config.username}'@'{config.host}:{config.port}'")
@@ -89,6 +95,10 @@ class ImapDumper:
     def dump(self):
         empty_folders = self._write_all_messages_to_db()
         self._dump_to_folder(empty_folders)
+        self._data_service.close_db()
+        
+        if self._dry_run:
+            shutil.move(self._db_bakfile, self._db_file)
 
     def _write_all_messages_to_db(self) -> dict:
         logger = self._logger.getChild("cache")
@@ -159,10 +169,6 @@ class ImapDumper:
                             folder_name=folder_name, message_id=message_id
                         )
                         size = data.get(b"RFC822.SIZE")
-                        
-                        # stupid hack so files recognized during dry runs are always created when dumper is being executed for real
-                        if self._dry_run:
-                            size += 1
 
                         create_or_update = (
                             self._data_service.mail_has_to_be_created_or_updated(
