@@ -20,6 +20,7 @@ def main():
         prog="imapdump",
         description="Dump IMAP accounts to a local directory",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        fromfile_prefix_chars="@",
     )
 
     parser.add_argument(
