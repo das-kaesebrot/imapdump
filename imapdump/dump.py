@@ -17,6 +17,7 @@ def main():
     available_levels.remove(logging.getLevelName(logging.WARNING).lower())
 
     parser = yamlargparse.ArgumentParser(
+        prog="imapdump",
         description="Dump IMAP accounts to a local directory",
         error_handler=yamlargparse.usage_and_exit_error_handler,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
