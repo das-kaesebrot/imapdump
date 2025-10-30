@@ -31,10 +31,11 @@ class DataService:
 
         assert self.__engine is not None
         assert self.__session is not None
-
-    def __del__(self):
+        
+    def close_db(self):
         self._logger.info("Shutting down")
-        self.__session.close()
+        self.__session.invalidate()
+        self.__engine.dispose()
 
     def get_all_mails(self) -> list[Mail]:
         select_statement = select(Mail)
