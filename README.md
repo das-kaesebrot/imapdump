@@ -48,6 +48,7 @@ options:
                         Pattern to match against for including folders (default: ^.*$)
   --force-dump          Force dump all matching messages without checking against existing database (default: False)
   --mirror              Remove all unknown files and folders from output folder and exactly mirror server state (default: False)
+  --dry-run             Only simulate what would be done, don't actually write/change anything (default: False)
   --dump-folder DUMP_FOLDER
                         Where to dump .eml files to (default: None)
   --config CONFIG       Supply a config file (default: None)
