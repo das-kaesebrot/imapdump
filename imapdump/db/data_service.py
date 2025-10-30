@@ -40,6 +40,10 @@ class DataService:
     def get_all_mails(self) -> list[Mail]:
         select_statement = select(Mail)
         return self.__session.scalars(select_statement).all()
+    
+    def get_all_mail_folders(self) -> list[str]:
+        select_statement = select(Mail.folder).distinct()
+        return self.__session.scalars(select_statement).all()
 
     def get_mail_by_id(self, id) -> Mail | None:
         select_statement = select(Mail).where(Mail.id.is_(id))
