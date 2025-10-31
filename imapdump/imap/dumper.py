@@ -256,14 +256,13 @@ class ImapDumper:
 
             filename = mail.filename
 
-            if not self._recreate:
-                try:
-                    all_unknown_files.remove(os.path.join(mail.folder, filename))
-                except ValueError:
-                    pass
+            try:
+                all_unknown_files.remove(os.path.join(mail.folder, filename))
+            except ValueError:
+                pass
 
-                if mail.folder in all_unknown_files:
-                    all_unknown_files.remove(mail.folder)
+            if mail.folder in all_unknown_files:
+                all_unknown_files.remove(mail.folder)
 
             full_filename = os.path.join(fs_mail_folder, filename)
 
