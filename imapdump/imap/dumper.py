@@ -9,7 +9,6 @@ from ..config.imapdump_config import ImapDumpConfig
 from ..enums.imap_encryption_mode import ImapEncryptionMode
 from ..models.mail import Mail
 from imapclient import IMAPClient
-from random import randint
 
 
 class ImapDumper:
@@ -66,10 +65,6 @@ class ImapDumper:
             self._client.login(config.username, config.password)
 
         if self._dry_run:
-            dry_run_db_file = f"{self._db_file}.dryrun.{randint(100, 999)}"
-            shutil.copy2(self._db_file, dry_run_db_file)
-            self._db_file = dry_run_db_file
-
             self._logger.info(
                 "Dry run mode activated, nothing will actually be changed"
             )
@@ -84,7 +79,7 @@ class ImapDumper:
             )
 
         self._data_service = DataService(
-            connection_string=f"sqlite:///{self._db_file}", recreate=self._recreate
+            connection_string=f"sqlite:///{self._db_file}", recreate=self._recreate, dry_run=self._dry_run
         )
 
         self._set_idle(True)
@@ -94,9 +89,6 @@ class ImapDumper:
         empty_folders = self._write_all_messages_to_db()
         self._dump_to_folder(empty_folders)
         self._data_service.close_db()
-
-        if self._dry_run:
-            os.unlink(self._db_file)
 
     def _write_all_messages_to_db(self) -> dict:
         logger = self._logger.getChild("cache")
