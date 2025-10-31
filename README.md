@@ -25,19 +25,25 @@ You may also run it using [`uv tool run`](https://docs.astral.sh/uv/guides/tools
 $ imapdump -h
 # ...or uvx
 $ uvx imapdump -h
-usage: dump.py [-h] [-l {critical,fatal,error,warn,info,debug}] [--host HOST] [-f DATABASE_FILE] [-p PORT] [-u USERNAME]
-                   [--password PASSWORD] [--encryption-mode {none,ssl,starttls}] [--folder-regex FOLDER_REGEX] [--force-dump]
-                   [--dump-folder DUMP_FOLDER] [--config CONFIG]
+usage: imapdump [-h] [-l {critical,fatal,error,warn,info,debug}] [--use-logfile] [--logfile-folder LOGFILE_FOLDER]
+                [--logfile-level {critical,fatal,error,warn,info,debug}] [--host HOST] [-f DATABASE_FILE] [-p PORT] [-u USERNAME]
+                [--password PASSWORD] [--encryption-mode {none,ssl,starttls}] [--folder-regex FOLDER_REGEX] [--recreate | --mirror]
+                [--dry-run] [--dump-folder DUMP_FOLDER] [-c ADDITIONAL_CONFIG_FILES]
 
-Dump IMAP accounts to a local directory
+Dump an IMAP account to a local directory
 
 options:
   -h, --help            show this help message and exit
   -l, --logging {critical,fatal,error,warn,info,debug}
-                        set the log level (default: info)
+                        Console log level (default: info)
+  --use-logfile         Write log files (default: False)
+  --logfile-folder LOGFILE_FOLDER
+                        Folder for log files (default: .)
+  --logfile-level {critical,fatal,error,warn,info,debug}
+                        Log files log level (default: info)
   --host HOST           Hostname of the IMAP server (default: None)
   -f, --file DATABASE_FILE
-                        Database file (default: None)
+                        Database file (default: .imapdump-cache.db)
   -p, --port PORT       Port of the IMAP server (default: 993)
   -u, --username USERNAME
                         Username for the IMAP account (default: None)
@@ -46,12 +52,14 @@ options:
                         IMAP encryption mode (default: ssl)
   --folder-regex FOLDER_REGEX
                         Pattern to match against for including folders (default: ^.*$)
-  --force-dump          Force dump all matching messages without checking against existing database (default: False)
+  --recreate            Recreate cache and recreate the dump directory (destructive, this will delete dumped files!), then dump all
+                        matching messages (default: False)
   --mirror              Remove all unknown files and folders from output folder and exactly mirror server state (default: False)
   --dry-run             Only simulate what would be done, don't actually write/change anything (default: False)
   --dump-folder DUMP_FOLDER
-                        Where to dump .eml files to (default: None)
-  --config CONFIG       Supply a config file (default: None)
+                        Where to dump .eml files to (default: dumped_mails)
+  -c, --config ADDITIONAL_CONFIG_FILES
+                        Supply a config file (can be specified multiple times) (default: None)
 ```
 
 ## Configuration
@@ -62,14 +70,12 @@ Example configuration:
 host: imap.example.com
 username: user
 password: supers3cr3tp4ssw0rd
-loglevel: info
 dump_folder: /path/to/dump/folder
-mirror: true
 ```
 
 Then run the application:
 ```bash
-$ imapdump -l debug --config config.yml
+$ imapdump -l debug --config config.yml --mirror
 ```
 
 ## Open Source License Attribution

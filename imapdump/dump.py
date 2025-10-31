@@ -145,7 +145,7 @@ def main():
         "-c",
         "--config",
         dest="additional_config_files",
-        help="Supply a config file",
+        help="Supply a config file (can be specified multiple times)",
         type=str,
         action="append",
     )
