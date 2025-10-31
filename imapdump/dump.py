@@ -5,6 +5,7 @@ import logging
 import os
 import yaml
 from dacite import from_dict
+from datetime import datetime
 
 from . import __version__
 from .imap.dumper import ImapDumper
@@ -163,11 +164,27 @@ def main():
         # Reload arguments to override config file values with command line values
         args = parser.parse_args(additional_args)
         args = parser.parse_args(namespace=args)
-
-    logging.basicConfig(
-        format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s",
-        level=args.console_log_level.upper(),
-    )
+        
+    min_log_level = min(logging.getLevelNamesMapping()[args.console_log_level.upper()], logging.getLevelNamesMapping()[args.logfile_level.upper()])
+    
+    log_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
+    root_logger = logging.getLogger()
+    root_logger.setLevel(min_log_level)
+    stdout_handler = logging.StreamHandler()
+    stdout_handler.setFormatter(log_formatter)
+    stdout_handler.setLevel(args.console_log_level.upper())
+    root_logger.addHandler(stdout_handler)
+    
+    logger = logging.getLogger("imapdump.main")
+    
+    if args.use_logfile:
+        logfile = os.path.join(os.path.abspath(os.path.expanduser(args.logfile_folder)), f"imapdump-{int(datetime.now().timestamp())}.log")
+        file_handler = logging.FileHandler(logfile)
+        file_handler.setFormatter(log_formatter)
+        file_handler.setLevel(args.logfile_level.upper())
+        root_logger.addHandler(file_handler)
+        logger.info(f"Logging to '{logfile}'")
+    
     logger = logging.getLogger("imapdump.main")
     logger.info(f"Running version {__version__}")
     logger.debug(f"Running as UID {os.getuid()}")
