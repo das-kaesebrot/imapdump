@@ -261,9 +261,7 @@ class ImapDumper:
             if not os.path.isdir(fs_mail_folder) and not self._dry_run:
                 os.makedirs(fs_mail_folder, exist_ok=False)
 
-            filename = (
-                f"{mail.id}_{self.replace_trash(mail.title, truncate_length=16)}.eml"
-            )
+            filename = mail.filename
 
             if not self._recreate:
                 try:
@@ -396,23 +394,3 @@ class ImapDumper:
             self._is_idle = idle
         else:
             self._logger.info("Skipped duplicate IDLE call")
-
-    # lol
-    # https://stackoverflow.com/a/39059279
-    # remove non-ascii chars and truncate to a fixed length
-    @staticmethod
-    def replace_trash(unicode_string: str, truncate_length: int = 32) -> str:
-        for i in range(0, len(unicode_string)):
-            try:
-                unicode_string[i].encode("ascii")
-            except UnicodeEncodeError:
-                # means it's non-ASCII
-                unicode_string = unicode_string[i].replace(
-                    ""
-                )  # replacing it with nothing
-
-        # replace spaces with underscores
-        unicode_string = unicode_string.replace(" ", "_")
-        # remove everything that's not a letter, a number, an underscore or a dash
-        unicode_string = re.sub(r"[^a-zA-Z0-9_\-]+", "", unicode_string)
-        return unicode_string[:truncate_length].rstrip("_")
