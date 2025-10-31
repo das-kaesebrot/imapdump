@@ -24,7 +24,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog="imapdump",
-        description="Dump IMAP accounts to a local directory",
+        description="Dump an IMAP account to a local directory",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         fromfile_prefix_chars="@",
     )
