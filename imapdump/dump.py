@@ -153,36 +153,34 @@ def main():
 
     args = parser.parse_args()
 
+    config = ImapDumpConfig()
+
     if args.additional_config_files is not None:
-        additional_args = []
         for config_filename in args.additional_config_files:
             with open(config_filename, "r") as f:
-                config = yaml.safe_load(f)
-                config_parsed = from_dict(data_class=ImapDumpFileConfig, data=config)
-                for key, value in asdict(config_parsed).items():
-                    additional_args.extend([f"--{key.replace('_', '-')}", str(value)])
-
-        # Reload arguments to override config file values with command line values
-        args = parser.parse_args(additional_args)
-        args = parser.parse_args(namespace=args)
-        
-    min_log_level = min(logging.getLevelNamesMapping()[args.console_log_level.upper()], logging.getLevelNamesMapping()[args.logfile_level.upper()])
+                config_file = yaml.safe_load(f)
+                config_parsed = from_dict(data_class=ImapDumpFileConfig, data=config_file)
+                config.update_from_dict(vars(config_parsed))
+    
+    config.update_from_dict(vars(args))
+    
+    min_log_level = min(logging.getLevelNamesMapping()[config.console_log_level.upper()], logging.getLevelNamesMapping()[config.logfile_level.upper()])
     
     log_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
     root_logger = logging.getLogger()
     root_logger.setLevel(min_log_level)
     stdout_handler = logging.StreamHandler()
     stdout_handler.setFormatter(log_formatter)
-    stdout_handler.setLevel(args.console_log_level.upper())
+    stdout_handler.setLevel(config.console_log_level.upper())
     root_logger.addHandler(stdout_handler)
     
     logger = logging.getLogger("imapdump.main")
     
     if args.use_logfile:
-        logfile = os.path.abspath(os.path.expanduser(args.logfile_path))
+        logfile = os.path.abspath(os.path.expanduser(config.logfile_path))
         file_handler = logging.FileHandler(logfile)
         file_handler.setFormatter(log_formatter)
-        file_handler.setLevel(args.logfile_level.upper())
+        file_handler.setLevel(config.logfile_level.upper())
         root_logger.addHandler(file_handler)
         logger.info(f"Logging to '{logfile}'")
     
@@ -190,19 +188,7 @@ def main():
     logger.info(f"Running version {__version__}")
     logger.debug(f"Running as UID {os.getuid()}")
 
-    args_dict = vars(args)
-    logger.debug(f"Using config:\n{json.dumps(args_dict, indent=4)}")
-
-    ignored_keys = [
-        "additional_config_files",
-        "use_logfile",
-        "logfile_level",
-        "logfile_folder",
-    ]
-    for ignored_key in ignored_keys:
-        del args_dict[ignored_key]
-
-    config = ImapDumpConfig(**vars(args))
+    logger.debug(f"Using config:\n{json.dumps(asdict(config), indent=4)}")
 
     try:
         dumper = ImapDumper(config=config)
