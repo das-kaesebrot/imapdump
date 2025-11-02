@@ -4,8 +4,7 @@ import json
 import logging
 import os
 import yaml
-from dacite import from_dict
-from datetime import datetime
+from dacite import Config, from_dict
 
 from . import __version__
 from .imap.dumper import ImapDumper
@@ -160,7 +159,7 @@ def main():
             with open(config_filename, "r") as f:
                 config_file = yaml.safe_load(f)
                 config_parsed = from_dict(
-                    data_class=ImapDumpFileConfig, data=config_file
+                    data_class=ImapDumpFileConfig, data=config_file, config=Config(cast=[ImapEncryptionMode]),
                 )
                 config.update_from_dict(vars(config_parsed))
 
