@@ -15,6 +15,11 @@ class ImapDumpConfig:
     encryption_mode: ImapEncryptionMode = ImapDumpConfigDefaults.ENCRYPTION_MODE
     folder_regex: str = ImapDumpConfigDefaults.FOLDER_REGEX
     dump_folder: str = ImapDumpConfigDefaults.DUMP_FOLDER
+    
+    additional_config_files: list[str] = field(default_factory=lambda: ImapDumpConfigDefaults.ADDITIONAL_CONFIG_FILES)
+    use_logfile: bool = ImapDumpConfigDefaults.USE_LOGFILE
+    logfile_level: str = ImapDumpConfigDefaults.LOGFILE_LEVEL
+    logfile_path: str = ImapDumpConfigDefaults.LOGFILE_PATH
 
     # flags
     recreate: bool = ImapDumpConfigDefaults.RECREATE

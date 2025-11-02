@@ -18,3 +18,4 @@ class ImapDumpConfigDefaults:
     DUMP_FOLDER: str = "dumped_mails"
     MIRROR: bool = False
     DRY_RUN: bool = False
+    ADDITIONAL_CONFIG_FILES: list[str] = []
