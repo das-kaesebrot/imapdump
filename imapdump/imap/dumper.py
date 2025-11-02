@@ -79,7 +79,9 @@ class ImapDumper:
             )
 
         self._data_service = DataService(
-            connection_string=f"sqlite:///{self._db_file}", recreate=self._recreate, dry_run=self._dry_run
+            connection_string=f"sqlite:///{self._db_file}",
+            recreate=self._recreate,
+            dry_run=self._dry_run,
         )
 
         self._set_idle(True)

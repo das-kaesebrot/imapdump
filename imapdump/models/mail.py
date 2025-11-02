@@ -21,10 +21,10 @@ class Mail(Base):
         DateTime, onupdate=func.now(), default=func.now()
     )
     created: Mapped[datetime] = mapped_column(DateTime, default=func.now())
-    
+
     @functools.cached_property
     def filename(self):
-        return f"{self.id}_{self.__replace_trash(self.title, truncate_length=16)}.eml"        
+        return f"{self.id}_{self.__replace_trash(self.title, truncate_length=16)}.eml"
 
     @staticmethod
     def generate_id(folder_name: str, message_id: str) -> str:

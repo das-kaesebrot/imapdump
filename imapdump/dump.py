@@ -159,23 +159,30 @@ def main():
         for config_filename in args.additional_config_files:
             with open(config_filename, "r") as f:
                 config_file = yaml.safe_load(f)
-                config_parsed = from_dict(data_class=ImapDumpFileConfig, data=config_file)
+                config_parsed = from_dict(
+                    data_class=ImapDumpFileConfig, data=config_file
+                )
                 config.update_from_dict(vars(config_parsed))
-    
+
     config.update_from_dict(vars(args))
-    
-    min_log_level = min(logging.getLevelNamesMapping()[config.console_log_level.upper()], logging.getLevelNamesMapping()[config.logfile_level.upper()])
-    
-    log_formatter = logging.Formatter("[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s")
+
+    min_log_level = min(
+        logging.getLevelNamesMapping()[config.console_log_level.upper()],
+        logging.getLevelNamesMapping()[config.logfile_level.upper()],
+    )
+
+    log_formatter = logging.Formatter(
+        "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
+    )
     root_logger = logging.getLogger()
     root_logger.setLevel(min_log_level)
     stdout_handler = logging.StreamHandler()
     stdout_handler.setFormatter(log_formatter)
     stdout_handler.setLevel(config.console_log_level.upper())
     root_logger.addHandler(stdout_handler)
-    
+
     logger = logging.getLogger("imapdump.main")
-    
+
     if args.use_logfile:
         logfile = os.path.abspath(os.path.expanduser(config.logfile_path))
         file_handler = logging.FileHandler(logfile)
@@ -183,7 +190,7 @@ def main():
         file_handler.setLevel(config.logfile_level.upper())
         root_logger.addHandler(file_handler)
         logger.info(f"Logging to '{logfile}'")
-    
+
     logger = logging.getLogger("imapdump.main")
     logger.info(f"Running version {__version__}")
     logger.debug(f"Running as UID {os.getuid()}")

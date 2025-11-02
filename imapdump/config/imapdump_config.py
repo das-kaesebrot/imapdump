@@ -15,8 +15,10 @@ class ImapDumpConfig:
     encryption_mode: ImapEncryptionMode = ImapDumpConfigDefaults.ENCRYPTION_MODE
     folder_regex: str = ImapDumpConfigDefaults.FOLDER_REGEX
     dump_folder: str = ImapDumpConfigDefaults.DUMP_FOLDER
-    
-    additional_config_files: list[str] = field(default_factory=lambda: ImapDumpConfigDefaults.ADDITIONAL_CONFIG_FILES)
+
+    additional_config_files: list[str] = field(
+        default_factory=lambda: ImapDumpConfigDefaults.ADDITIONAL_CONFIG_FILES
+    )
     use_logfile: bool = ImapDumpConfigDefaults.USE_LOGFILE
     logfile_level: str = ImapDumpConfigDefaults.LOGFILE_LEVEL
     logfile_path: str = ImapDumpConfigDefaults.LOGFILE_PATH
@@ -25,17 +27,16 @@ class ImapDumpConfig:
     recreate: bool = ImapDumpConfigDefaults.RECREATE
     mirror: bool = ImapDumpConfigDefaults.MIRROR
     dry_run: bool = ImapDumpConfigDefaults.DRY_RUN
-    
+
     def update_from_dict(self, vars_dict: dict):
         props = asdict(self).keys()
-        
+
         for key, value in vars_dict.items():
             if key not in props:
                 raise ValueError(f"Prop '{key}' not in dataclass!")
-            
+
             if getattr(ImapDumpConfigDefaults, key.upper()) == value:
                 continue
-            
+
             if getattr(self, key) != value:
                 setattr(self, key, value)
-                

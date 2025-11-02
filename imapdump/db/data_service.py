@@ -13,7 +13,11 @@ class DataService:
     _logger: logging.Logger
 
     def __init__(
-        self, *, connection_string: str | URL = "sqlite://", recreate: bool = False, dry_run: bool = False,
+        self,
+        *,
+        connection_string: str | URL = "sqlite://",
+        recreate: bool = False,
+        dry_run: bool = False,
     ) -> None:
         self._logger = logging.getLogger(__name__)
         self._logger.info(
@@ -22,23 +26,25 @@ class DataService:
 
         # only echo SQL statements if we're logging at the debug level
         echo = self._logger.getEffectiveLevel() <= logging.DEBUG
-        
-        existing_db = None        
+
+        existing_db = None
         if dry_run:
             # bruh this is some C++ style substring handling
-            existing_db_file = connection_string[len("sqlite:///"):]
+            existing_db_file = connection_string[len("sqlite:///") :]
             connection_string = "sqlite:///:memory:"
             if os.path.isfile(existing_db_file):
                 existing_db = sqlite3.connect(existing_db_file)
 
         self.__engine = create_engine(connection_string, echo=echo)
-        
+
         if existing_db:
-            self._logger.info(f"Copying existing database into in-memory db for dry run")
+            self._logger.info(
+                f"Copying existing database into in-memory db for dry run"
+            )
             conn = self.__engine.raw_connection().dbapi_connection
             existing_db.backup(conn)
             existing_db.close()
-        
+
         if recreate:
             Base.metadata.drop_all(self.__engine)
             self._logger.info("Dropped existing database")
