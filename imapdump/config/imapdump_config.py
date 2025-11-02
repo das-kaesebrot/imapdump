@@ -1,6 +1,6 @@
 from ..enums.imap_encryption_mode import ImapEncryptionMode
 from .default_values import ImapDumpConfigDefaults
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict, field
 
 
 @dataclass
@@ -25,3 +25,17 @@ class ImapDumpConfig:
     recreate: bool = ImapDumpConfigDefaults.RECREATE
     mirror: bool = ImapDumpConfigDefaults.MIRROR
     dry_run: bool = ImapDumpConfigDefaults.DRY_RUN
+    
+    def update_from_dict(self, vars_dict: dict):
+        props = asdict(self).keys()
+        
+        for key, value in vars_dict.items():
+            if key not in props:
+                raise ValueError(f"Prop '{key}' not in dataclass!")
+            
+            if getattr(ImapDumpConfigDefaults, key.upper()) == value:
+                continue
+            
+            if getattr(self, key) != value:
+                setattr(self, key, value)
+                
