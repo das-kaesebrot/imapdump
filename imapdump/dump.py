@@ -46,10 +46,10 @@ def main():
     )
 
     parser.add_argument(
-        "--logfile-folder",
+        "--logfile-path",
         help="Folder for log files",
         type=str,
-        default=ImapDumpConfigDefaults.LOGFILE_FOLDER,
+        default=ImapDumpConfigDefaults.LOGFILE_PATH,
     )
 
     parser.add_argument(
@@ -179,7 +179,7 @@ def main():
     logger = logging.getLogger("imapdump.main")
     
     if args.use_logfile:
-        logfile = os.path.join(os.path.abspath(os.path.expanduser(args.logfile_folder)), f"imapdump-{int(datetime.now().timestamp())}.log")
+        logfile = os.path.abspath(os.path.expanduser(args.logfile_path))
         file_handler = logging.FileHandler(logfile)
         file_handler.setFormatter(log_formatter)
         file_handler.setLevel(args.logfile_level.upper())
