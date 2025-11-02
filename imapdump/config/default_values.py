@@ -3,6 +3,7 @@ from ..enums.imap_encryption_mode import ImapEncryptionMode
 
 
 class ImapDumpConfigDefaults:
+    HOST: str = "127.0.0.1"
     CONSOLE_LOG_LEVEL: str = logging.getLevelName(logging.INFO).lower()
     USE_LOGFILE: bool = False
     LOGFILE_FOLDER: str = "."

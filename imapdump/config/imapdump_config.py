@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class ImapDumpConfig:
-    host: str
+    host: str = ImapDumpConfigDefaults.HOST
 
     console_log_level: str = ImapDumpConfigDefaults.CONSOLE_LOG_LEVEL
     port: int = ImapDumpConfigDefaults.PORT

@@ -64,6 +64,7 @@ def main():
         "--host",
         help="Hostname of the IMAP server",
         type=str,
+        default=ImapDumpConfigDefaults.HOST,
     )
 
     parser.add_argument(
