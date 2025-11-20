@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "47a1eb82735d6746610e8db798f4b09a245ded7ce31d4f0c4c8a1738cd8eb5bf"
+            "sha256": "77bd110a1348f8e7d47bf2522fac56949114c1ace56ab183970a0d4cc599da8a"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -258,11 +258,11 @@
         },
         "yamlargparse": {
             "hashes": [
-                "sha256:ab42f12e0754a40504a0b057f29c27069f2ee92cba22df743cd2174f67919bdb"
+                "sha256:2c09fc8e20c147d074f765512b880757a6fea669d57a3dc672a5e1be6c68c667"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.5'",
-            "version": "==1.30.0"
+            "version": "==1.31.1"
         }
     },
     "develop": {
