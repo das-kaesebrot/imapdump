@@ -74,6 +74,19 @@ password: supers3cr3tp4ssw0rd
 dump_folder: /path/to/dump/folder
 ```
 
+All possible settings:
+```yaml
+host: imap.example.com
+port: 993
+username: user
+password: supers3cr3tp4ssw0rd
+database_file: .imapdump-cache.db
+encryption_mode: ssl
+folder_regex: ^.*$
+dump_folder: /path/to/dump/folder
+
+```
+
 Then run the application:
 ```bash
 $ imapdump -l debug --config config.yml --mirror
