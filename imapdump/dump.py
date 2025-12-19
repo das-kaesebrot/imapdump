@@ -46,7 +46,7 @@ def main():
 
     parser.add_argument(
         "--logfile-path",
-        help="Folder for log files",
+        help="File to write log entries into",
         type=str,
         default=ImapDumpConfigDefaults.LOGFILE_PATH,
     )
