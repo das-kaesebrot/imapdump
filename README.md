@@ -25,10 +25,10 @@ You may also run it using [`uv tool run`](https://docs.astral.sh/uv/guides/tools
 $ imapdump -h
 # ...or uvx
 $ uvx imapdump -h
-usage: imapdump [-h] [-l {critical,fatal,error,warn,info,debug}] [--use-logfile] [--logfile-folder LOGFILE_FOLDER]
-                [--logfile-level {critical,fatal,error,warn,info,debug}] [--host HOST] [-f DATABASE_FILE] [-p PORT] [-u USERNAME]
-                [--password PASSWORD] [--encryption-mode {none,ssl,starttls}] [--folder-regex FOLDER_REGEX] [--recreate | --mirror]
-                [--dry-run] [--dump-folder DUMP_FOLDER] [-c ADDITIONAL_CONFIG_FILES]
+usage: imapdump [-h] [-l {critical,fatal,error,warn,info,debug}] [--use-logfile] [--logfile-path LOGFILE_PATH]
+                [--logfile-level {critical,fatal,error,warn,info,debug}] [--host HOST] [-f DATABASE_FILE] [-p PORT]
+                [-u USERNAME] [--password PASSWORD] [--encryption-mode {none,ssl,starttls}] [--folder-regex FOLDER_REGEX]
+                [--recreate | --mirror] [--dry-run] [--dump-folder DUMP_FOLDER] [-c ADDITIONAL_CONFIG_FILES]
 
 Dump an IMAP account to a local directory
 
@@ -37,11 +37,11 @@ options:
   -l, --logging {critical,fatal,error,warn,info,debug}
                         Console log level (default: info)
   --use-logfile         Write log files (default: False)
-  --logfile-folder LOGFILE_FOLDER
-                        Folder for log files (default: .)
+  --logfile-path LOGFILE_PATH
+                        File to write log entries into (default: imapdump.log)
   --logfile-level {critical,fatal,error,warn,info,debug}
                         Log files log level (default: info)
-  --host HOST           Hostname of the IMAP server (default: None)
+  --host HOST           Hostname of the IMAP server (default: 127.0.0.1)
   -f, --file DATABASE_FILE
                         Database file (default: .imapdump-cache.db)
   -p, --port PORT       Port of the IMAP server (default: 993)
@@ -52,9 +52,10 @@ options:
                         IMAP encryption mode (default: ssl)
   --folder-regex FOLDER_REGEX
                         Pattern to match against for including folders (default: ^.*$)
-  --recreate            Recreate cache and recreate the dump directory (destructive, this will delete dumped files!), then dump all
-                        matching messages (default: False)
-  --mirror              Remove all unknown files and folders from output folder and exactly mirror server state (default: False)
+  --recreate            Recreate cache and recreate the dump directory (destructive, this will delete dumped files!),
+                        then dump all matching messages (default: False)
+  --mirror              Remove all unknown files and folders from output folder and exactly mirror server state (default:
+                        False)
   --dry-run             Only simulate what would be done, don't actually write/change anything (default: False)
   --dump-folder DUMP_FOLDER
                         Where to dump .eml files to (default: dumped_mails)
