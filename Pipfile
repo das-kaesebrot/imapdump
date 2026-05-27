@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 pyyaml="~=6.0.0"
 dacite = "~=1.9.2"
-imapclient = "~=3.0.0"
+imapclient = "~=3.1.0"
 sqlalchemy = "~=2.0.40"
 yamlargparse = "~=1.31.1"
 
