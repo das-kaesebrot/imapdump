@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5e6a0e04104b6683866dc098e890f1f209f2650c0f040eb92d53d713b0d720cb"
+            "sha256": "1cfe532096e238671e04ab415bc62dc042283f684467126f8f6e721ad15cb443"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -110,12 +110,12 @@
         },
         "imapclient": {
             "hashes": [
-                "sha256:78e6d62fbfbbe233e1f0e0e993160fd665eb1fd35973acddc61c15719b22bc02",
-                "sha256:d77d77caa4123e0233b5cf2b9c54a078522e63270b88d3f48653a28637fd8828"
+                "sha256:34c192ffe82936e940a998ac89c474296942cd7c4f6c208f0fccfcd972946038",
+                "sha256:b0413a516ffcc4b4d69f2c611c0e95da57968edf5a5c78ac82d1bf882305facc"
             ],
             "index": "pypi",
-            "markers": "python_full_version >= '3.7.0'",
-            "version": "==3.0.1"
+            "markers": "python_full_version >= '3.8.0'",
+            "version": "==3.1.0"
         },
         "pyyaml": {
             "hashes": [
@@ -264,11 +264,11 @@
         },
         "typing-extensions": {
             "hashes": [
-                "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466",
-                "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"
+                "sha256:481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8",
+                "sha256:dc983d19a509c94dba722ee6abd33940f7c05a89e243c47e907eb4db6f1a43e5"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==4.15.0"
+            "version": "==4.16.0"
         },
         "yamlargparse": {
             "hashes": [
