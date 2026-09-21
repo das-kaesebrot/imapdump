@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d57942aa6224942e0837c0bbba19badb95b5638e7d7e9425c86594733c9015d0"
+            "sha256": "00486ca0ed1efe6b1fcad9f849b84348c7cdc56240fcf6c31a0b754152100c9a"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -110,12 +110,12 @@
         },
         "imapclient": {
             "hashes": [
-                "sha256:34c192ffe82936e940a998ac89c474296942cd7c4f6c208f0fccfcd972946038",
-                "sha256:b0413a516ffcc4b4d69f2c611c0e95da57968edf5a5c78ac82d1bf882305facc"
+                "sha256:9c46f431ceecde87ae1bbb8c287cbeb20bc70bcbee3d0c3bd0c01808d28630f4",
+                "sha256:c7dd1a175eda1cb1e99a5aeca4ea2c0b0a3ed36f13b2e677bc3447588336df27"
             ],
             "index": "pypi",
             "markers": "python_full_version >= '3.8.0'",
-            "version": "==3.1.0"
+            "version": "==4.0.1"
         },
         "pyyaml": {
             "hashes": [
