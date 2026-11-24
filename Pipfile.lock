@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f974b0abb85296ccaa344e35984d32fe115c1bfa67e92532497132f84fcbbe19"
+            "sha256": "d334c2ac5d10fce4d0e457c065bda651e6e200cc30874a40f23303e737b4f928"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -16,21 +16,21 @@
     "default": {
         "dacite": {
             "hashes": [
-                "sha256:053f7c3f5128ca2e9aceb66892b1a3c8936d02c686e707bee96e19deef4bc4a0",
-                "sha256:6ccc3b299727c7aa17582f0021f6ae14d5de47c7227932c47fec4cdfefd26f09"
+                "sha256:0941c63c6c87eb148cea1560ef65db883a1515bd1440275ad1b9330806ba4be8",
+                "sha256:709a5ce19b3e888ddc488aa07c3cb6c9829197645e5ecd4e517a7cc1d9f40529"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==1.9.2"
+            "version": "==1.9.3"
         },
         "imapclient": {
             "hashes": [
-                "sha256:329593a186e55e0601766dd0c8fc7e2edc0be76bd95479c84bd624624c4dcec5",
-                "sha256:777102ced48ab22e3fc372982bb5bed1497c4cc438864d6ec1c9f327ab5f3b3a"
+                "sha256:71c9cb3e8ee0835bcae79b49c9059ef26901a308c94261f7a7002bd76ada5ad8",
+                "sha256:8341a0db668ab0aa5aad4b0526d059d0e21f03b0a943c4bb6d01083518eaaed2"
             ],
             "index": "pypi",
             "markers": "python_full_version >= '3.8.0'",
-            "version": "==4.2.0"
+            "version": "==4.3.0"
         },
         "pyyaml": {
             "hashes": [
@@ -222,11 +222,11 @@
         },
         "packaging": {
             "hashes": [
-                "sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79",
-                "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+                "sha256:81383611a09c1bc0b08b76e0fd5829d7c6824c65b27a6aee339da133f4233ea2",
+                "sha256:c4b671c41ddb9bf26e543c37723610d28fb6bf7affc4da17cf048d419d2c062a"
             ],
-            "markers": "python_version >= '3.9'",
-            "version": "==26.3"
+            "markers": "python_version >= '3.10'",
+            "version": "==26.4"
         },
         "pyproject-hooks": {
             "hashes": [
